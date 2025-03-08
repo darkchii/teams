@@ -39,6 +39,11 @@ tr {
     background-color: darkred;
 }
 
+.total-team {
+    background-color: darkslateblue;
+    font-weight: bold;
+}
+
 tr:hover {
     background-color: darkcyan;
 }

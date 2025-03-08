@@ -225,43 +225,30 @@ class Team
     private $flag_url;
     private $members;
     private $last_updated;
+    private $is_total_team = false;
 
     //getters
-    public function getId()
-    {
-        return $this->id;
-    }
-    public function getName()
-    {
-        return $this->name;
-    }
-    public function getRuleset()
-    {
-        return $this->ruleset;
-    }
-    public function getShortName()
-    {
-        return $this->short_name;
-    }
-    public function getFlagUrl()
-    {
-        return $this->flag_url;
-    }
-    public function getMembers()
-    {
-        return $this->members;
-    }
-    public function getLastUpdated()
-    {
-        return strtotime($this->last_updated);
-    }
+    // public function getId() { return $this->id; }
+    //return dash if id is 0
+    public function getId() { return $this->id == 0 ? '-' : $this->id; }
+    public function setId($id) { $this->id = $id; }
+
+    public function getName() { return $this->name; }
+    public function setName($name) { $this->name = $name; }
+    public function getRuleset() { return $this->ruleset; }
+    public function getShortName() { return $this->short_name; } public function getFlagUrl() { return $this->flag_url; }
+    public function getMembers() { return $this->members; }
+    public function setMembers($members) { $this->members = $members; }
+    public function getLastUpdated() { return strtotime($this->last_updated); }
+    public function setLastUpdated($last_updated) { $this->last_updated = $last_updated; }
+    public function getIsTotalTeam() { return $this->is_total_team; }
 
     public function isTeamConfirmedExisting(){
         //if last updated is over half a day ago, we can't be sure if the team still exists
         return time() - strtotime($this->last_updated) < 43200;
     }
 
-    public function __construct($id, $name, $short_name, $flag_url, $members, $last_updated)
+    public function __construct($id, $name, $short_name, $flag_url, $members, $last_updated, $is_total_team = false)
     {
         $this->id = $id;
         $this->name = $name;
@@ -269,6 +256,22 @@ class Team
         $this->flag_url = $flag_url;
         $this->members = $members;
         $this->last_updated = $last_updated;
+        $this->is_total_team = $is_total_team;
+    }
+
+    public static function createFakeTotalTeam($teams){
+        $total_team = new Team(0, 'Total', 'Total', './img/wide-peppy.png', 0, date('Y-m-d H:i:s'), true);
+        $total_team->addRuleset(new TeamRuleset(0, 'osu', 0, 0, 0, 0));
+
+        foreach($teams as $team){
+            $total_team->getRuleset()->setPlayCount($total_team->getRuleset()->getPlayCount() + $team->getRuleset()->getPlayCount());
+            $total_team->getRuleset()->setRankedScore($total_team->getRuleset()->getRankedScore() + $team->getRuleset()->getRankedScore());
+            $total_team->getRuleset()->setAverageScore($total_team->getRuleset()->getAverageScore() + $team->getRuleset()->getAverageScore());
+            $total_team->getRuleset()->setPerformance($total_team->getRuleset()->getPerformance() + $team->getRuleset()->getPerformance());
+            $total_team->setMembers($total_team->getMembers() + $team->getMembers());
+        }
+
+        return $total_team;
     }
 
     public static function getTeams($filter)
@@ -309,30 +312,18 @@ class TeamRuleset
     private $performance;
 
     //getters
-    public function getId()
-    {
-        return $this->id;
-    }
-    public function getMode()
-    {
-        return $this->mode;
-    }
-    public function getPlayCount()
-    {
-        return $this->play_count;
-    }
-    public function getRankedScore()
-    {
-        return $this->ranked_score;
-    }
-    public function getAverageScore()
-    {
-        return $this->average_score;
-    }
-    public function getPerformance()
-    {
-        return $this->performance;
-    }
+    public function getId() { return $this->id; }
+    public function setId($id) { $this->id = $id; }
+    public function getMode() { return $this->mode; }
+    public function setMode($mode) { $this->mode = $mode; }
+    public function getPlayCount() { return $this->play_count; }
+    public function setPlayCount($play_count) { $this->play_count = $play_count; }
+    public function getRankedScore() { return $this->ranked_score; }
+    public function setRankedScore($ranked_score) { $this->ranked_score = $ranked_score; }
+    public function getAverageScore() { return $this->average_score; }
+    public function setAverageScore($average_score) { $this->average_score = $average_score; }
+    public function getPerformance() { return $this->performance; }
+    public function setPerformance($performance) { $this->performance = $performance; }
 
     public function __construct($id, $mode, $play_count, $ranked_score, $average_score, $performance)
     {

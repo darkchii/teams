@@ -26,6 +26,10 @@ require_once('team.php');
         <?php
         $filter = new TeamFilter($_SERVER['QUERY_STRING']);
         $teams = Team::getTeams($filter); //returns an array of Team objects
+
+        // $teams[] = Team::createFakeTotalTeam($teams);
+        //insert fake team at the start of the array
+        array_unshift($teams, Team::createFakeTotalTeam($teams));
         ?>
         <div>
             <div>
@@ -139,16 +143,16 @@ require_once('team.php');
                     <?php
                     foreach ($teams as $team) {
                         $exists = $team->isTeamConfirmedExisting();
-                        echo '<tr class="'. ($exists ? "" : "dead-team ").'clickableRow" onclick="window.open(\'https://osu.ppy.sh/teams/' . $team->getId() . '\', \'_blank\');">';
+                        echo '<tr class="'.($team->getIsTotalTeam() ? "total-team " : "clickableRow ").''. ($exists ? "" : "dead-team ").'" '.($team->getIsTotalTeam() ? "" : 'onclick="window.open(\'https://osu.ppy.sh/teams/' . $team->getId() . '\', \'_blank\');"').'>';
                         echo '<td>' . $team->getId() . '</td>';
-                        echo '<td style="text-align:center"><img loading="lazy" class="team-flag" src="' . $team->getFlagUrl() . '"></td>';
-                        echo '<td style="max-width:300px">' . $team->getName() . '</td>';
+                        echo '<td style="text-align:center;"><img loading="lazy" class="team-flag" src="' . $team->getFlagUrl() . '"></td>';
+                        echo '<td style="max-width:300px;">' . $team->getName() . '</td>';
                         echo '<td>' . number_format($team->getMembers()) . '</td>';
                         echo '<td>' . number_format($team->getRuleset()->getPlayCount()) . '</td>';
                         echo '<td>' . number_format($team->getRuleset()->getRankedScore()) . '</td>';
                         echo '<td>' . number_format($team->getRuleset()->getAverageScore()) . '</td>';
-                        echo '<td>' . number_format($team->getRuleset()->getPerformance()) . '</td>';
-                        echo '<td>' . get_time_ago($team->getLastUpdated()) . '</td>';
+                        echo '<td>' . number_format($team->getRuleset()->getPerformance()) . 'pp</td>';
+                        echo '<td>' . ($team->getIsTotalTeam() ? "" : get_time_ago($team->getLastUpdated())) . '</td>';
                         echo '</tr>';
                     }
                     ?>
