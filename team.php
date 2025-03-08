@@ -264,6 +264,10 @@ class Team
         $total_team->addRuleset(new TeamRuleset(0, 'osu', 0, 0, 0, 0));
 
         foreach($teams as $team){
+            if(!$team->isTeamConfirmedExisting()){
+                continue;
+            }
+
             $total_team->getRuleset()->setPlayCount($total_team->getRuleset()->getPlayCount() + $team->getRuleset()->getPlayCount());
             $total_team->getRuleset()->setRankedScore($total_team->getRuleset()->getRankedScore() + $team->getRuleset()->getRankedScore());
             $total_team->getRuleset()->setAverageScore($total_team->getRuleset()->getAverageScore() + $team->getRuleset()->getAverageScore());
