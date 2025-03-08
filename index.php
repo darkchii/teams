@@ -14,7 +14,7 @@ require_once('team.php');
     <!-- metadata -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="osu! teams browser">
+    <meta name="description" content="Filter and browse all osu! teams">
     <meta name="author" content="Amayakase">
     <meta name="keywords" content="osu!, teams, browser">
     <!-- favicon -->
