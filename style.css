@@ -28,8 +28,15 @@ td {
     text-overflow: ellipsis;
 }
 
+/* tr has dead-time class, every td child needs color adjust */
+
 tr {
     background-color: darkslategray;
+}
+
+/* tr with dead-team class */
+.dead-team {
+    background-color: darkred;
 }
 
 tr:hover {

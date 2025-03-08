@@ -113,6 +113,10 @@ require_once('team.php');
                     Found <?php echo number_format(count($teams)); ?> teams
                 </span>
                 <br />
+                <span style="font-size:12px">
+                    If a team hasn't been seen in over 12 hours, the row will turn red and is presumed deleted.
+                </span>
+                <br />
                 <table>
                     <tr>
                         <th>ID</th>
@@ -123,10 +127,15 @@ require_once('team.php');
                         <th>Ranked Score</th>
                         <th>Average Score</th>
                         <th>Performance</th>
+                        <!-- add tooltip -->
+                        <th 
+                            title="Last time the team was seen."
+                        >Last Polled</th>
                     </tr>
                     <?php
                     foreach ($teams as $team) {
-                        echo '<tr class="clickableRow" onclick="window.open(\'https://osu.ppy.sh/teams/' . $team->getId() . '\', \'_blank\');">';
+                        $exists = $team->isTeamConfirmedExisting();
+                        echo '<tr class="'. ($exists ? "" : "dead-team ").'clickableRow" onclick="window.open(\'https://osu.ppy.sh/teams/' . $team->getId() . '\', \'_blank\');">';
                         echo '<td>' . $team->getId() . '</td>';
                         echo '<td style="text-align:center"><img loading="lazy" class="team-flag" src="' . $team->getFlagUrl() . '"></td>';
                         echo '<td style="max-width:300px">' . $team->getName() . '</td>';
@@ -135,6 +144,7 @@ require_once('team.php');
                         echo '<td>' . number_format($team->getRuleset()->getRankedScore()) . '</td>';
                         echo '<td>' . number_format($team->getRuleset()->getAverageScore()) . '</td>';
                         echo '<td>' . number_format($team->getRuleset()->getPerformance()) . '</td>';
+                        echo '<td>' . $team->getLastUpdated() . '</td>';
                         echo '</tr>';
                     }
                     ?>

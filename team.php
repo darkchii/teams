@@ -9,7 +9,8 @@ $team_order_options = [
     'play_count' => 'Play Count',
     'ranked_score' => 'Ranked Score',
     'average_score' => 'Average Score',
-    'performance' => 'Performance'
+    'performance' => 'Performance',
+    'last_updated' => 'Last Polled'
 ];
 
 class TeamFilter
@@ -253,6 +254,11 @@ class Team
     public function getLastUpdated()
     {
         return $this->last_updated;
+    }
+
+    public function isTeamConfirmedExisting(){
+        //if last updated is over half a day ago, we can't be sure if the team still exists
+        return time() - strtotime($this->last_updated) < 43200;
     }
 
     public function __construct($id, $name, $short_name, $flag_url, $members, $last_updated)
