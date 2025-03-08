@@ -25,7 +25,10 @@ require_once('team.php');
     <div class="team-table-container">
         <?php
         $filter = new TeamFilter($_SERVER['QUERY_STRING']);
+        $start_time = microtime(true);
         $teams = Team::getTeams($filter); //returns an array of Team objects
+        $end_time = microtime(true);
+        $execution_time = ($end_time - $start_time);
 
         // $teams[] = Team::createFakeTotalTeam($teams);
         //insert fake team at the start of the array
@@ -118,7 +121,7 @@ require_once('team.php');
                     </div>
                 </div>
                 <span>
-                    Found <?php echo number_format(count($teams)); ?> teams
+                    Found <?php echo number_format(count($teams) - 1); ?> teams - Execution time: <?php echo number_format($execution_time, 3); ?>s
                 </span>
                 <br />
                 <span style="font-size:12px">
