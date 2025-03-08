@@ -1,0 +1,63 @@
+body {
+    font-family: Verdana, sans-serif;
+    font-size: 13px;
+    background-color: black;
+    color: white;
+}
+
+.team-flag {
+    height: 40px;
+    /* width automatic */
+    max-height: 40px;
+    max-width: 100px;
+}
+
+.team-table-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+th,
+td {
+    padding-left: 15px;
+    padding-right: 15px;
+    max-width: 25%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+tr {
+    background-color: darkslategray;
+}
+
+tr:hover {
+    background-color: darkcyan;
+}
+
+/* just a link */
+.mode-select {
+    color: white;
+    text-decoration: none;
+    padding: 5px;
+}
+
+.mode-select:hover {
+    color: lightgray;
+    text-decoration: none;
+}
+
+.mode-select-active {
+    color: lightgray;
+    text-decoration: none;
+    border-bottom: 1px solid white;
+}
+
+.team-range-filter {
+    width: '50px';
+}
+
+.clickableRow {
+    cursor: pointer;
+}
