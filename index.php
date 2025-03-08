@@ -10,6 +10,15 @@ require_once('team.php');
     <title>osu! teams browser</title>
 
     <link rel="stylesheet" type="text/css" href="style.css">
+
+    <!-- metadata -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="osu! teams browser">
+    <meta name="author" content="Amayakase">
+    <meta name="keywords" content="osu!, teams, browser">
+    <!-- favicon -->
+    <link rel="icon" type="image/png" href="favicon.png">
 </head>
 
 <body>
