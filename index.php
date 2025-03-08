@@ -104,6 +104,10 @@ require_once('team.php');
                         foreach ($valid_modes as $index => $mode) {
                             //change the mode in the query string (or add it if it doesn't exist)
                             $query = preg_replace('/mode=[a-z]*/', 'mode=' . $mode, $current_url_query);
+                            //find the first occurence of the mode in the query string, if it doesn't exist, add it
+                            if (strpos($query, 'mode=') === false) {
+                                $query .= '&mode=' . $mode;
+                            }
                             echo '<a class="mode-select' . ($filter->getMode() == $index ? '-active' : '') . '" href="index.php?' . $query . '">' . $mode . '</a>';
                         }
                         ?>
@@ -144,7 +148,7 @@ require_once('team.php');
                         echo '<td>' . number_format($team->getRuleset()->getRankedScore()) . '</td>';
                         echo '<td>' . number_format($team->getRuleset()->getAverageScore()) . '</td>';
                         echo '<td>' . number_format($team->getRuleset()->getPerformance()) . '</td>';
-                        echo '<td>' . $team->getLastUpdated() . '</td>';
+                        echo '<td>' . get_time_ago($team->getLastUpdated()) . '</td>';
                         echo '</tr>';
                     }
                     ?>

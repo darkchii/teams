@@ -253,7 +253,7 @@ class Team
     }
     public function getLastUpdated()
     {
-        return $this->last_updated;
+        return strtotime($this->last_updated);
     }
 
     public function isTeamConfirmedExisting(){
