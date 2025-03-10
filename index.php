@@ -26,13 +26,13 @@ require_once('team.php');
         <?php
         $filter = new TeamFilter($_SERVER['QUERY_STRING']);
         $start_time = microtime(true);
-        $teams = Team::getTeams($filter); //returns an array of Team objects
+        $team_collection = Team::getTeams($filter);
         $end_time = microtime(true);
         $execution_time = ($end_time - $start_time);
 
         // $teams[] = Team::createFakeTotalTeam($teams);
         //insert fake team at the start of the array
-        array_unshift($teams, Team::createFakeTotalTeam($teams));
+        $team_collection->addTeam(Team::createFakeTotalTeam($team_collection->getTeams()), true);
         ?>
         <div>
             <div>
@@ -121,11 +121,11 @@ require_once('team.php');
                     </div>
                 </div>
                 <span>
-                    Found <?php echo number_format(count($teams) - 1); ?> teams - Execution time: <?php echo number_format($execution_time, 3); ?>s
+                    Found <?php echo number_format($team_collection->getTeamCount()); ?> teams (<?php echo number_format($team_collection->getDeadTeamCount()); ?> deleted) - Execution time: <?php echo number_format($execution_time, 3); ?>s
                 </span>
                 <br />
                 <span style="font-size:12px">
-                    If a team hasn't been seen in over 12 hours, the row will turn red and is presumed deleted.
+                    A row turns red if the team has not be seen in the last fetch and is presumed deleted. If this was somehow a mistake, it will likely be fixed in the next fetch.
                 </span>
                 <br />
                 <table>
@@ -144,12 +144,14 @@ require_once('team.php');
                         >Last Polled</th>
                     </tr>
                     <?php
-                    foreach ($teams as $team) {
-                        $exists = $team->isTeamConfirmedExisting();
+                    foreach ($team_collection->getTeams() as $team) {
+                        $exists = !$team->getIsDeleted();
                         echo '<tr class="'.($team->getIsTotalTeam() ? "total-team " : "clickableRow ").''. ($exists ? "" : "dead-team ").'" '.($team->getIsTotalTeam() ? "" : 'onclick="window.open(\'https://osu.ppy.sh/teams/' . $team->getId() . '\', \'_blank\');"').'>';
                         echo '<td>' . $team->getId() . '</td>';
                         echo '<td style="text-align:center;"><img loading="lazy" class="team-flag" src="' . $team->getFlagUrl() . '"></td>';
                         echo '<td style="max-width:300px;">' . $team->getName() . '</td>';
+                        //add class 'hide-on-mobile' for non-active sorts
+                        // echo '<td>' . number_format($team->getMembers()) . '</td>';
                         echo '<td>' . number_format($team->getMembers()) . '</td>';
                         echo '<td>' . number_format($team->getRuleset()->getPlayCount()) . '</td>';
                         echo '<td>' . number_format($team->getRuleset()->getRankedScore()) . '</td>';

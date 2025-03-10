@@ -225,6 +225,7 @@ class Team
     private $flag_url;
     private $members;
     private $last_updated;
+    private $deleted;
     private $is_total_team = false;
 
     //getters
@@ -242,13 +243,9 @@ class Team
     public function getLastUpdated() { return strtotime($this->last_updated); }
     public function setLastUpdated($last_updated) { $this->last_updated = $last_updated; }
     public function getIsTotalTeam() { return $this->is_total_team; }
+    public function getIsDeleted() { return $this->deleted; }
 
-    public function isTeamConfirmedExisting(){
-        //if last updated is over half a day ago, we can't be sure if the team still exists
-        return time() - strtotime($this->last_updated) < 43200;
-    }
-
-    public function __construct($id, $name, $short_name, $flag_url, $members, $last_updated, $is_total_team = false)
+    public function __construct($id, $name, $short_name, $flag_url, $members, $last_updated, $deleted, $is_total_team = false)
     {
         $this->id = $id;
         $this->name = $name;
@@ -256,24 +253,28 @@ class Team
         $this->flag_url = $flag_url;
         $this->members = $members;
         $this->last_updated = $last_updated;
+        $this->deleted = $deleted;
         $this->is_total_team = $is_total_team;
     }
 
     public static function createFakeTotalTeam($teams){
-        $total_team = new Team(0, 'Total', 'Total', './img/wide-peppy.png', 0, date('Y-m-d H:i:s'), true);
+        $total_team = new Team(0, 'Total', 'Total', './img/wide-peppy.png', 0, date('Y-m-d H:i:s'), false, true);
         $total_team->addRuleset(new TeamRuleset(0, 'osu', 0, 0, 0, 0));
 
+        $total_average_score = 0;
         foreach($teams as $team){
-            if(!$team->isTeamConfirmedExisting()){
+            if($team->getIsDeleted()){
                 continue;
             }
 
             $total_team->getRuleset()->setPlayCount($total_team->getRuleset()->getPlayCount() + $team->getRuleset()->getPlayCount());
             $total_team->getRuleset()->setRankedScore($total_team->getRuleset()->getRankedScore() + $team->getRuleset()->getRankedScore());
-            $total_team->getRuleset()->setAverageScore($total_team->getRuleset()->getAverageScore() + $team->getRuleset()->getAverageScore());
+            // $total_team->getRuleset()->setAverageScore($total_team->getRuleset()->getAverageScore() + $team->getRuleset()->getAverageScore());
+            $total_average_score += $team->getRuleset()->getAverageScore();
             $total_team->getRuleset()->setPerformance($total_team->getRuleset()->getPerformance() + $team->getRuleset()->getPerformance());
             $total_team->setMembers($total_team->getMembers() + $team->getMembers());
         }
+        $total_team->getRuleset()->setAverageScore($total_average_score / count($teams));
 
         return $total_team;
     }
@@ -292,12 +293,19 @@ class Team
 
         $teams = [];
         while ($row = $result->fetch_assoc()) {
-            $team = new Team($row['id'], $row['name'], $row['short_name'], $row['flag_url'], $row['members'], $row['last_updated']);
+            $team = new Team($row['id'], $row['name'], $row['short_name'], $row['flag_url'], $row['members'], $row['last_updated'], $row['deleted']);
             $team->addRuleset(new TeamRuleset($row['id'], $row['mode'], $row['play_count'], $row['ranked_score'], $row['average_score'], $row['performance']));
             $teams[] = $team;
         }
 
-        return $teams;
+        $team_collection = new TeamCollection();
+        foreach ($teams as $team) {
+            $team_collection->addTeam($team);
+        }
+
+        return $team_collection;
+
+        // return $teams;
     }
 
     public function addRuleset($ruleset)
@@ -337,5 +345,39 @@ class TeamRuleset
         $this->ranked_score = $ranked_score;
         $this->average_score = $average_score;
         $this->performance = $performance;
+    }
+}
+
+class TeamCollection {
+    private $teams = [];
+    private $count = 0;
+    private $count_dead = 0;
+
+    public function addTeam($team, $at_start = false){
+        if($at_start){
+            array_unshift($this->teams, $team);
+        } else {
+            $this->teams[] = $team;
+        }
+        
+        if($team->getId() != 0){
+            if($team->getIsDeleted()){
+                $this->count_dead++;
+            } else {
+                $this->count++;
+            }
+        }
+    }
+
+    public function getTeams(){
+        return $this->teams;
+    }
+
+    public function getTeamCount(){
+        return $this->count;
+    }
+
+    public function getDeadTeamCount(){
+        return $this->count_dead;
     }
 }
