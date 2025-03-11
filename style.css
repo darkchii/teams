@@ -20,18 +20,44 @@ body {
 
 th,
 td {
-    padding-left: 15px;
-    padding-right: 15px;
+    padding-left: 10px;
+    padding-right: 10px;
     max-width: 25%;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    border: 2px solid black;
+    border-collapse: collapse;
 }
 
 /* tr has dead-time class, every td child needs color adjust */
 
 tr {
     background-color: darkslategray;
+}
+
+table {
+    /* disable the outer border */
+    border-collapse: collapse;
+    width: 100%;
+}
+
+table tr:first-child th {
+    border-top: 0;
+}
+
+table tr:last-child td {
+    border-bottom: 0;
+}
+
+table tr td:first-child,
+table tr th:first-child {
+    border-left: 0;
+}
+
+table tr td:last-child,
+table tr th:last-child {
+    border-right: 0;
 }
 
 /* tr with dead-team class */
@@ -45,6 +71,22 @@ tr {
 }
 
 tr:hover {
+    background-color: darkcyan;
+}
+
+.tab-button {
+    background-color: darkslategray;
+    color: white;
+    border: none;
+    padding: 10px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.tab-button:hover {
     background-color: darkcyan;
 }
 
