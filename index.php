@@ -1,4 +1,6 @@
-<?php //enable error reporting error_reporting(E_ALL); ini_set('display_errors', 1);
+<?php //enable error reporting 
+error_reporting(E_ALL); 
+ini_set('display_errors', 1);
 require_once('Models/TeamFilter.php');
 require_once('Models/Team.php');
 $MAX_TEAMS_PER_PAGE = 100;
