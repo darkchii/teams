@@ -115,3 +115,21 @@ tr:hover {
 .clickableRow {
     cursor: pointer;
 }
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 5px;
+}
+
+.pagination-button {
+    color: white;
+    padding: 8px 8px;
+    text-decoration: none;
+    transition: background-color .3s;
+}
+
+.pagination-button-disabled {
+    color: gray;
+}

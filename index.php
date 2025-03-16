@@ -1,8 +1,7 @@
-<?php
-//enable error reporting
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-require_once('team.php');
+<?php //enable error reporting error_reporting(E_ALL); ini_set('display_errors', 1);
+require_once('Models/TeamFilter.php');
+require_once('Models/Team.php');
+$MAX_TEAMS_PER_PAGE = 100;
 ?>
 <html>
 
@@ -40,11 +39,14 @@ require_once('team.php');
                 <div>
                     <form id="filter-form" method="get">
                         <input type="hidden" name="mode" value="<?php echo $filter->getMode(true); ?>">
+                        <input type="hidden" name="page" value="<?php echo $filter->getPage(); ?>">
 
                         <div>
                             <!-- name filter -->
                             <input type="text" name="name" placeholder="Team name"
                                 value="<?php echo $filter->getName(); ?>">
+                            <input type="text" name="short_name" placeholder="Team tag"
+                                value="<?php echo $filter->getShortName(); ?>">
                             <!-- order by dropdown -->
                             <select name="order">
                                 <?php
@@ -122,27 +124,92 @@ require_once('team.php');
                 somehow a mistake, it will likely be fixed in the next fetch.
             </span>
             <br />
+            <?php
+            //pagination
+            $page = $filter->getPage();
+            $total_pages = ceil($team_collection->getTeamCount() / $MAX_TEAMS_PER_PAGE);
+            $prev_page = $page - 1;
+            $next_page = $page + 1;
+            $prev_disabled = $prev_page < 1 ? 'disabled' : '';
+            $next_disabled = $next_page > $total_pages ? 'disabled' : '';
+
+            //function to replace the page number in the query string
+            function replace_page($page, $query)
+            {
+                if (strpos($query, 'page=') === false) {
+                    return $query . '&page=' . $page;
+                }
+                return preg_replace('/page=[0-9]*/', 'page=' . $page, $query);
+            }
+
+            function getPaginationElement($page, $current_page, $forced_string = null)
+            {
+                global $total_pages;
+                $_url = replace_page($page, $_SERVER['QUERY_STRING']);
+                $_disabled = ($page < 1 || $page > $total_pages || $page == $current_page) ? 'disabled' : '';
+                $_tag = 'a';
+                if ($_disabled) {
+                    $_tag = 'span';
+                }
+                // return '<' . $_tag . ' class="pagination-button ' . ($_disabled ? 'pagination-button-disabled' : '') . '" href="index.php?' . $_url . '">' . ($forced_string ?? $page) . '</' . $_tag . '>';
+                $element = '';
+                $element .= '<' . $_tag;
+                $element .= ' class="pagination-button ' . ($_disabled ? 'pagination-button-disabled' : '') . '"';
+                if(!$_disabled) {
+                    $element .= ' href="index.php?' . $_url . '"';
+                }
+                $element .= '>';
+                $element .= ($forced_string ?? $page);
+                $element .= '</' . $_tag . '>';
+                return $element;
+            }
+
+            //show Previous and Next buttons
+            //Also show 10 pages before and after the current page (if in bounds)
+            
+            echo '<div class="pagination">';
+            echo getPaginationElement($prev_page, $page, "Previous");
+            for ($i = 1; $i <= $total_pages; $i++) {
+                if ($i < $page - 10 && $i > 1) {
+                    echo '<span>...</span>';
+                    $i = $page - 10;
+                }
+                if ($i > $page + 10 && $i < $total_pages) {
+                    echo '<span>...</span>';
+                    $i = $total_pages;
+                }
+                if ($i < 1) {
+                    continue;
+                }
+                if ($i > $total_pages) {
+                    break;
+                }
+                echo getPaginationElement($i, $page);
+            }
+            echo getPaginationElement($next_page, $page, "Next");
+            echo '</div>';
+            ?>
             <div>
                 <div>
                     <table>
                         <tr>
                             <th>ID</th>
                             <th></th>
+                            <th>Tag</th>
                             <th>Team Name</th>
                             <th>Members</th>
                             <th>Play Count</th>
                             <th>Ranked Score</th>
                             <th>Average Score</th>
                             <th>Performance</th>
-                            <!-- add tooltip -->
-                            <th title="Last time the team was seen.">Last Polled</th>
                         </tr>
                         <?php
-                        foreach ($team_collection->getTeams() as $team) {
+                        foreach ($team_collection->getTeams($filter->getPage(), $MAX_TEAMS_PER_PAGE) as $team) {
                             $exists = !$team->getIsDeleted();
                             echo '<tr class="' . ($team->getIsTotalTeam() ? "total-team " : "clickableRow ") . '' . ($exists ? "" : "dead-team ") . '" ' . ($team->getIsTotalTeam() ? "" : 'onclick="window.open(\'https://osu.ppy.sh/teams/' . $team->getId() . '\', \'_blank\');"') . '>';
                             echo '<td>' . $team->getId() . '</td>';
                             echo '<td style="text-align:center;"><img loading="lazy" class="team-flag" src="' . $team->getFlagUrl() . '"></td>';
+                            echo '<td style="' . ($team->getShortName() ? '' : 'font-style:italic;color:grey;') . '">' . ($team->getShortName() ?? 'N/A') . '</td>';
                             echo '<td style="max-width:300px;">' . $team->getName() . '</td>';
                             //add class 'hide-on-mobile' for non-active sorts
                             // echo '<td>' . number_format($team->getMembers()) . '</td>';
@@ -151,7 +218,6 @@ require_once('team.php');
                             echo '<td>' . number_format($team->getRuleset()->getRankedScore()) . '</td>';
                             echo '<td>' . number_format($team->getRuleset()->getAverageScore()) . '</td>';
                             echo '<td>' . number_format($team->getRuleset()->getPerformance()) . 'pp</td>';
-                            echo '<td>' . ($team->getIsTotalTeam() ? "" : get_time_ago($team->getLastUpdated())) . '</td>';
                             echo '</tr>';
                         }
                         ?>
