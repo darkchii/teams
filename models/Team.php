@@ -6,6 +6,7 @@ require_once('TeamCollection.php');
 
 class Team
 {
+    private $rank;
     private $id;
     private $name;
     private $ruleset;
@@ -17,6 +18,18 @@ class Team
     private $is_total_team = false;
 
     //getters
+
+    public function getRank()
+    {
+        return $this->id == 0 ? '-' : $this->rank;
+    }
+    public function getRankStr() {
+        return $this->rank == 0 ? '-' : '#' . $this->rank;
+    }
+    public function setRank($rank)
+    {
+        $this->rank = $rank;
+    }
     // public function getId() { return $this->id; }
     //return dash if id is 0
     public function getId()
@@ -65,8 +78,9 @@ class Team
         return $this->deleted;
     }
 
-    public function __construct($id, $name, $short_name, $flag_url, $members, $deleted, $is_total_team = false)
+    public function __construct($rank, $id, $name, $short_name, $flag_url, $members, $deleted, $is_total_team = false)
     {
+        $this->rank = $rank;
         $this->id = $id;
         $this->name = $name;
         $this->short_name = $short_name;
@@ -78,7 +92,7 @@ class Team
 
     public static function createFakeTotalTeam($teams)
     {
-        $total_team = new Team(0, 'Total', 'peppy', './img/wide-peppy.png', 0, false, true);
+        $total_team = new Team(0, 0, 'Total', 'peppy', './img/wide-peppy.png', 0, false, true);
         $total_team->addRuleset(new TeamRuleset(0, 'osu', 0, 0, 0, 0));
 
         $total_average_score = 0;
@@ -102,18 +116,19 @@ class Team
     public static function getTeams($filter)
     {
         $query_filters = $filter->getSqlQueryFilters();
+        $_order = ' ORDER BY ' . $filter->getSqlQueryOrder() . ' ' . $filter->getOrderDir();
         // $sql = 'SELECT * FROM osu_teams INNER JOIN osu_teams_ruleset ON osu_teams.id = osu_teams_ruleset.id AND mode = "' . $mode . '" ORDER BY performance DESC LIMIT ' . $limit;
-        $sql = 'SELECT * FROM osu_teams';
+        $sql = 'SELECT osu_teams.*, osu_teams_ruleset.*, rank() over ('.$_order.') as rank FROM osu_teams';
         $sql .= ' INNER JOIN osu_teams_ruleset ON osu_teams.id = osu_teams_ruleset.id AND mode = "' . $filter->getMode() . '" ';
         if (count($query_filters) > 0) {
             $sql .= ' WHERE ' . implode(' AND ', $query_filters);
         }
-        $sql .= ' ORDER BY ' . $filter->getSqlQueryOrder() . ' ' . $filter->getOrderDir();
+        $sql .= $_order;
         $result = DB::query($sql);
 
         $teams = [];
         while ($row = $result->fetch_assoc()) {
-            $team = new Team($row['id'], $row['name'], $row['short_name'], $row['flag_url'], $row['members'], $row['deleted']);
+            $team = new Team($row['rank'], $row['id'], $row['name'], $row['short_name'], $row['flag_url'], $row['members'], $row['deleted']);
             $team->addRuleset(new TeamRuleset($row['id'], $row['mode'], $row['play_count'], $row['ranked_score'], $row['average_score'], $row['performance']));
             $teams[] = $team;
         }

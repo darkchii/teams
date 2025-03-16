@@ -193,8 +193,9 @@ $MAX_TEAMS_PER_PAGE = 100;
             ?>
             <div>
                 <div>
-                    <table>
+                    <table cellpadding="0">
                         <tr>
+                            <th>#</th>
                             <th>ID</th>
                             <th></th>
                             <th>Tag</th>
@@ -209,6 +210,7 @@ $MAX_TEAMS_PER_PAGE = 100;
                         foreach ($team_collection->getTeams($filter->getPage(), $MAX_TEAMS_PER_PAGE) as $team) {
                             $exists = !$team->getIsDeleted();
                             echo '<tr class="' . ($team->getIsTotalTeam() ? "total-team " : "clickableRow ") . '' . ($exists ? "" : "dead-team ") . '" ' . ($team->getIsTotalTeam() ? "" : 'onclick="window.open(\'https://osu.ppy.sh/teams/' . $team->getId() . '\', \'_blank\');"') . '>';
+                            echo '<td>' . $team->getRankStr() . '</td>';
                             echo '<td>' . $team->getId() . '</td>';
                             echo '<td style="text-align:center;"><img loading="lazy" class="team-flag" src="' . $team->getFlagUrl() . '"></td>';
                             echo '<td style="' . ($team->getShortName() ? '' : 'font-style:italic;color:grey;') . '">' . ($team->getShortName() ?? 'N/A') . '</td>';
