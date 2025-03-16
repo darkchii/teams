@@ -57,7 +57,7 @@ $MAX_TEAMS_PER_PAGE = 100;
                             <select name="order">
                                 <?php
                                 foreach ($team_order_options as $key => $value) {
-                                    echo '<option value="' . $key . '"' . ($filter->getOrder() == $key ? ' selected' : '') . '>' . $value . '</option>';
+                                    echo '<option value="' . $key . '"' . ($filter->getOrder() == $key ? ' selected' : '') . '>' . $value['name'] . '</option>';
                                 }
                                 ?>
                             </select>
@@ -71,7 +71,7 @@ $MAX_TEAMS_PER_PAGE = 100;
                                 <?php
                                 $ranges = [];
                                 foreach ($team_order_options as $key => $value) {
-                                    $ranges[$key] = $value;
+                                    $ranges[$key] = $value['name'];
                                 }
                                 //these all go next to each other
                                 echo '<tr>';
@@ -93,6 +93,19 @@ $MAX_TEAMS_PER_PAGE = 100;
                                     echo '<td><input size="8" class="team-range-filter" type="number" name="' . $key . '_max" placeholder="Max" value="' . $max . '"></td>';
                                 }
                                 echo '</tr>';
+
+                                echo '<tr>';
+                                //add checkboxes to hide columns
+                                //use memory to remember which columns are hidden
+                                //dont use this in the form, javascript should deal with this
+                                foreach ($team_order_options as $key => $value) {
+                                    if ($value['can_hide']) {
+                                        echo '<td><input exclude="true" is_column_hider="true" type="checkbox" name="' . $key . '_hide">Hide</td>';
+                                    } else {
+                                        echo '<td></td>';
+                                    }
+                                }
+                                echo '</tr>';
                                 ?>
                             </table>
                         </div>
@@ -101,9 +114,11 @@ $MAX_TEAMS_PER_PAGE = 100;
                         </div>
                     </form>
                 </div>
-                <div style="font-size: large;">
+                <!-- equal width for each child element -->
+                <div class="mode-select-container">
                     <?php
                     $current_url_query = $_SERVER['QUERY_STRING'];
+                    //move last mode to the front of the array, rest should be in the same order
                     foreach ($valid_modes as $index => $mode) {
                         //change the mode in the query string (or add it if it doesn't exist)
                         $query = preg_replace('/mode=[a-z]*/', 'mode=' . $mode, $current_url_query);
@@ -195,72 +210,87 @@ $MAX_TEAMS_PER_PAGE = 100;
             <div>
                 <div>
                     <table cellpadding="0">
-                        <tr>
-                            <th>#</th>
-                            <th>ID</th>
-                            <th></th>
-                            <th>Tag</th>
-                            <th>Team Name</th>
-                            <th>Members</th>
+                        <colgroup>
+                            <col />
+                            <col column-type="id" id="col_id" />
+                            <col />
+                            <col />
+                            <col />
+                            <col column-type="members" id="col_members" />
                             <?php
                             foreach ($team_stat_column_data as $key => $value) {
-                                echo '<th>' . $value['name'] . '</th>';
+                                echo '<col column-type="' . $key . '" id="col_' . $key . '" />';
                             }
                             ?>
-                        </tr>
-                        <?php
-                        foreach ($team_collection->getTeams($filter->getPage(), $MAX_TEAMS_PER_PAGE) as $team) {
-                            $exists = !$team->getIsDeleted();
-                            echo '<tr class="' . ($team->getIsTotalTeam() ? "total-team " : "clickableRow ") . '' . ($exists ? "" : "dead-team ") . '" ' . ($team->getIsTotalTeam() ? "" : 'onclick="window.open(\'https://osu.ppy.sh/teams/' . $team->getId() . '\', \'_blank\');"') . '>';
-                            echo '<td>' . $team->getRankStr() . '</td>';
-                            echo '<td>' . $team->getId() . '</td>';
-                            echo '<td style="text-align:center;"><img loading="lazy" class="team-flag" src="' . $team->getFlagUrl() . '"></td>';
-                            echo '<td style="' . ($team->getShortName() ? '' : 'font-style:italic;color:grey;') . '">' . ($team->getShortName() ?? 'N/A') . '</td>';
-                            echo '<td style="max-width:150px;overflow:hidden;">' . $team->getName() . '</td>';
-                            //add class 'hide-on-mobile' for non-active sorts
-                            echo '<td>' . number_format($team->getMembers()) . '</td>';
-                            // echo '<td>' . number_format($team->getMembers()) . '</td>';
-                            // echo '<td>' . number_format($team->getRuleset()->getClears()) . '</td>';
-                            // echo '<td>' . number_format($team->getRuleset()->getTotalSS()) . '</td>';
-                            // echo '<td>' . number_format($team->getRuleset()->getTotalS()) . '</td>';
-                            // echo '<td>' . number_format($team->getRuleset()->getTotalA()) . '</td>';
-                            // echo '<td>' . number_format($team->getRuleset()->getPlayCount()) . '</td>';
-                            // echo '<td>' . number_format($team->getRuleset()->getRankedScore()) . '</td>';
-                            // echo '<td>' . number_format($team->getRuleset()->getAverageScore()) . '</td>';
-                            // echo '<td>' . number_format($team->getRuleset()->getPerformance()) . 'pp</td>';
-                            $data = get_team_row_data($team);
-                            foreach ($data as $key => $value) {
-                                // echo '<td>' . $value['value'] . '</td>';
-                                echo '<td>';
-                                if ($value['tooltip']) {
-                                    echo '<span class="hint--top hint--no-arrow hint--no-animate" data-hint="' . $value['tooltip'] . '">' . $value['value'] . '</span>';
-                                } else {
-                                    echo $value['value'];
+                            <script>
+                                //add class 'active-sort' to the column that is currently being sorted (use php)
+                                let active_id = `col_<?php echo $filter->getOrder(); ?>`;
+                                let active_col = document.getElementById(active_id);
+                                if(active_col) {
+                                    active_col.classList.add('active-sort');
                                 }
-                                echo '</td>';
+                            </script>
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th column-type="id">ID</th>
+                                <th></th>
+                                <th>Tag</th>
+                                <th>Team Name</th>
+                                <th column-type="members">Members</th>
+                                <?php
+                                foreach ($team_stat_column_data as $key => $value) {
+                                    echo '<th column-type="' . $key . '">' . $value['name'] . '</th>';
+                                }
+                                ?>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php
+                            foreach ($team_collection->getTeams($filter->getPage(), $MAX_TEAMS_PER_PAGE) as $team) {
+                                $exists = !$team->getIsDeleted();
+                                echo '<tr class="' . ($team->getIsTotalTeam() ? "total-team " : "clickableRow ") . '' . ($exists ? "" : "dead-team ") . '" ' . ($team->getIsTotalTeam() ? "" : 'onclick="window.open(\'https://osu.ppy.sh/teams/' . $team->getId() . '\', \'_blank\');"') . '>';
+                                echo '<td>' . $team->getRankStr() . '</td>';
+                                echo '<td column-type="id">' . $team->getId() . '</td>';
+                                echo '<td style="text-align:center;"><img loading="lazy" class="team-flag" src="' . $team->getFlagUrl() . '"></td>';
+                                echo '<td style="' . ($team->getShortName() ? '' : 'font-style:italic;color:grey;') . '">' . ($team->getShortName() ?? 'N/A') . '</td>';
+                                echo '<td style="max-width:150px;overflow:hidden;">' . $team->getName() . '</td>';
+                                //add class 'hide-on-mobile' for non-active sorts
+                                echo '<td column-type="members">' . number_format($team->getMembers()) . '</td>';
+                                // echo '<td>' . number_format($team->getMembers()) . '</td>';
+                                // echo '<td>' . number_format($team->getRuleset()->getClears()) . '</td>';
+                                // echo '<td>' . number_format($team->getRuleset()->getTotalSS()) . '</td>';
+                                // echo '<td>' . number_format($team->getRuleset()->getTotalS()) . '</td>';
+                                // echo '<td>' . number_format($team->getRuleset()->getTotalA()) . '</td>';
+                                // echo '<td>' . number_format($team->getRuleset()->getPlayCount()) . '</td>';
+                                // echo '<td>' . number_format($team->getRuleset()->getRankedScore()) . '</td>';
+                                // echo '<td>' . number_format($team->getRuleset()->getAverageScore()) . '</td>';
+                                // echo '<td>' . number_format($team->getRuleset()->getPerformance()) . 'pp</td>';
+                                $data = get_team_row_data($team);
+                                foreach ($data as $key => $value) {
+                                    // echo '<td>' . $value['value'] . '</td>';
+                                    echo '<td column-type="' . $key . '">';
+                                    if ($value['tooltip']) {
+                                        echo '<span class="hint--top hint--no-arrow hint--no-animate" data-hint="' . $value['tooltip'] . '">' . $value['value'] . '</span>';
+                                    } else {
+                                        echo $value['value'];
+                                    }
+                                    echo '</td>';
+                                }
+                                echo '</tr>';
                             }
-                            echo '</tr>';
-                        }
-                        ?>
+                            ?>
+                        </tbody>
                     </table>
                 </div>
             </div>
         </div>
         <script>
-            document.getElementById('filter-form').addEventListener('submit', function () {
-                // Find all input elements within the form
-                var inputs = this.querySelectorAll('input, textarea, select');
-
-                // Loop through the inputs and disable those that are empty
-                inputs.forEach(function (input) {
-                    if (!input.value) {
-                        input.disabled = true;
-                    }
-                });
-
-                return true;
-            });
+            //get from php
+            let active_sorter = '<?php echo $filter->getOrder(); ?>';
         </script>
+        <script src="script.js"></script>
 </body>
 
 </html>

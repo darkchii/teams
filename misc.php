@@ -1,5 +1,5 @@
 <?php
-$valid_modes = ['osu', 'taiko', 'fruits', 'mania'];
+$valid_modes = ['osu', 'taiko', 'fruits', 'mania', 'all'];
 
 
 function get_time_ago($time)

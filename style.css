@@ -27,16 +27,6 @@ td {
     text-overflow: ellipsis;
     border: 2px solid black;
     font-size: 13px;
-    display: table-cell;
-}
-
-td.hint, td[data-hint],
-.td.hint, .td[data-hint] {
-  display: table-cell;
-}
-tr.hint, tr[data-hint],
-.tr.hint, .tr[data-hint] {
-  display: table-row;
 }
 
 th {
@@ -45,15 +35,12 @@ th {
 
 /* tr has dead-time class, every td child needs color adjust */
 
-tr {
-    background-color: darkslategray;
-}
-
 table {
     /* disable the outer border */
     border-collapse: collapse;
     border-spacing: 0;
     width: 100%;
+    background-color: darkslategray;
 }
 
 table tr:first-child th {
@@ -72,6 +59,10 @@ table tr th:first-child {
 table tr td:last-child,
 table tr th:last-child {
     border-right: 0;
+}
+
+.active-sort {
+    background-color: rgb(27, 46, 46);
 }
 
 /* tr with dead-team class */
@@ -104,11 +95,19 @@ tr:hover {
     background-color: darkcyan;
 }
 
+.mode-select-container {
+    font-size: large;
+    /* equal child widths */
+    display: flex;
+    align-items: center;
+    margin-top: 5px;
+}
+
 /* just a link */
 .mode-select {
     color: white;
     text-decoration: none;
-    padding: 5px;
+    margin: 5px;
 }
 
 .mode-select:hover {
@@ -120,6 +119,8 @@ tr:hover {
     color: lightgray;
     text-decoration: none;
     border-bottom: 1px solid white;
+    font-weight: bold;
+    font-style: italic;
 }
 
 .team-range-filter {

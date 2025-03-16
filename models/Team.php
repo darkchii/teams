@@ -118,7 +118,7 @@ class Team
             $total_team->getRuleset()->setReplaysWatched($total_team->getRuleset()->getReplaysWatched() + $team->getRuleset()->getReplaysWatched());
             $total_team->getRuleset()->setTotalHits($total_team->getRuleset()->getTotalHits() + $team->getRuleset()->getTotalHits());
         }
-        $total_team->getRuleset()->setAverageScore($total_average_score / count($teams));
+        $total_team->getRuleset()->setAverageScore(count($teams) > 0 ? $total_average_score / count($teams) : 0);
 
         return $total_team;
     }
@@ -128,11 +128,31 @@ class Team
         $query_filters = $filter->getSqlQueryFilters();
         $_order = ' ORDER BY ' . $filter->getSqlQueryOrder() . ' ' . $filter->getOrderDir();
         // $sql = 'SELECT * FROM osu_teams INNER JOIN osu_teams_ruleset ON osu_teams.id = osu_teams_ruleset.id AND mode = "' . $mode . '" ORDER BY performance DESC LIMIT ' . $limit;
-        $sql = 'SELECT osu_teams.*, osu_teams_ruleset.*, rank() over (' . $_order . ') as rank FROM osu_teams';
-        $sql .= ' INNER JOIN osu_teams_ruleset ON osu_teams.id = osu_teams_ruleset.id AND mode = "' . $filter->getMode() . '" ';
+        $sql = 'SELECT osu_teams.*, ';
+        $sql .= 'SUM(play_count) as play_count, ';
+        $sql .= 'SUM(ranked_score) as ranked_score, ';
+        $sql .= 'AVG(average_score) as average_score, ';
+        $sql .= 'SUM(performance) as performance, ';
+        $sql .= 'SUM(clears) as clears, ';
+        $sql .= 'SUM(total_ss) as total_ss, ';
+        $sql .= 'SUM(total_s) as total_s, ';
+        $sql .= 'SUM(total_a) as total_a, ';
+        $sql .= 'SUM(total_score) as total_score, ';
+        $sql .= 'SUM(play_time) as play_time, ';
+        $sql .= 'SUM(replays_watched) as replays_watched, ';
+        $sql .= 'SUM(total_hits) as total_hits, ';
+        //insert the mode into the query, makes it easier than adding it to ruleset etc later
+        $sql .= '"'.$filter->getMode(true) .'" as mode';
+        $sql .= ', rank() over (' . $_order . ') as rank FROM osu_teams';
+        $sql .= ' INNER JOIN osu_teams_ruleset ON osu_teams.id = osu_teams_ruleset.id';
+        if($filter->getMode() < 4){
+            $sql .= ' AND mode = "' . $filter->getMode() . '"';
+        }
+        //mode is not necessarily set, if not, we want to get all rulesets join, but with the sum of each stat
         if (count($query_filters) > 0) {
             $sql .= ' WHERE ' . implode(' AND ', $query_filters);
         }
+        $sql .= ' GROUP BY osu_teams.id';
         $sql .= $_order;
         $result = DB::query($sql);
 

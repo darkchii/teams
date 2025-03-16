@@ -5,7 +5,7 @@ require_once('Range.php');
 class TeamFilter
 {
     //filter by anything (name, int min, int max)
-    private $mode = 'osu';
+    public $mode = 'osu';
 
     private $name;
     private $short_name;
