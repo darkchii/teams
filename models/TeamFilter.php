@@ -11,11 +11,20 @@ class TeamFilter
     private $short_name;
     private $page = 1;
 
+    private $range_id;
     private $range_members;
     private $range_play_count;
     private $range_ranked_score;
     private $range_average_score;
     private $range_performance;
+    private $range_clears;
+    private $range_total_ss;
+    private $range_total_s;
+    private $range_total_a;
+    private $range_total_score;
+    private $range_play_time;
+    private $range_replays_watched;
+    private $range_total_hits;
 
     private $order = 'performance';
     private $order_dir = 'desc';
@@ -49,6 +58,10 @@ class TeamFilter
     {
         return $this->page;
     }
+    public function getRangeId()
+    {
+        return $this->range_id;
+    }
     public function getRangeMembers()
     {
         return $this->range_members;
@@ -68,6 +81,38 @@ class TeamFilter
     public function getRangePerformance()
     {
         return $this->range_performance;
+    }
+    public function getRangeClears()
+    {
+        return $this->range_clears;
+    }
+    public function getRangeTotalSS()
+    {
+        return $this->range_total_ss;
+    }
+    public function getRangeTotalS()
+    {
+        return $this->range_total_s;
+    }
+    public function getRangeTotalA()
+    {
+        return $this->range_total_a;
+    }
+    public function getRangeTotalScore()
+    {
+        return $this->range_total_score;
+    }
+    public function getRangePlayTime()
+    {
+        return $this->range_play_time;
+    }
+    public function getRangeReplaysWatched()
+    {
+        return $this->range_replays_watched;
+    }
+    public function getRangeTotalHits()
+    {
+        return $this->range_total_hits;
     }
     public function getOrder()
     {
@@ -145,7 +190,11 @@ class TeamFilter
                     continue;
                 }
 
-                if ($key == 'members_min') {
+                if ($key == 'id_min'){
+                    $this->range_id = new Range($value, PHP_INT_MAX);
+                } else if ($key == 'id_max') {
+                    $this->range_id = new Range(0, $value);
+                } else if ($key == 'members_min') {
                     $this->range_members = new Range($value, PHP_INT_MAX);
                 } else if ($key == 'members_max') {
                     $this->range_members = new Range(0, $value);
@@ -165,6 +214,38 @@ class TeamFilter
                     $this->range_performance = new Range($value, PHP_INT_MAX);
                 } else if ($key == 'performance_max') {
                     $this->range_performance = new Range(0, $value);
+                } else if ($key == 'clears_min') {
+                    $this->range_clears = new Range($value, PHP_INT_MAX);
+                } else if ($key == 'clears_max') {
+                    $this->range_clears = new Range(0, $value);
+                } else if ($key == 'total_ss_min') {
+                    $this->range_total_ss = new Range($value, PHP_INT_MAX);
+                } else if ($key == 'total_ss_max') {
+                    $this->range_total_ss = new Range(0, $value);
+                } else if ($key == 'total_s_min') {
+                    $this->range_total_s = new Range($value, PHP_INT_MAX);
+                } else if ($key == 'total_s_max') {
+                    $this->range_total_s = new Range(0, $value);
+                } else if ($key == 'total_a_min') {
+                    $this->range_total_a = new Range($value, PHP_INT_MAX);
+                } else if ($key == 'total_a_max') {
+                    $this->range_total_a = new Range(0, $value);
+                } else if ($key == 'total_score_min') {
+                    $this->range_total_score = new Range($value, PHP_INT_MAX);
+                } else if ($key == 'total_score_max') {
+                    $this->range_total_score = new Range(0, $value);
+                } else if ($key == 'play_time_min') {
+                    $this->range_play_time = new Range($value, PHP_INT_MAX);
+                } else if ($key == 'play_time_max') {
+                    $this->range_play_time = new Range(0, $value);
+                } else if ($key == 'replays_watched_min') {
+                    $this->range_replays_watched = new Range($value, PHP_INT_MAX);
+                } else if ($key == 'replays_watched_max') {
+                    $this->range_replays_watched = new Range(0, $value);
+                } else if ($key == 'total_hits_min') {
+                    $this->range_total_hits = new Range($value, PHP_INT_MAX);
+                } else if ($key == 'total_hits_max') {
+                    $this->range_total_hits = new Range(0, $value);
                 } else if ($key == 'order') {
                     $this->order = $value;
                 } else if ($key == 'order_dir') {
@@ -190,6 +271,10 @@ class TeamFilter
             'ranked_score' => $this->range_ranked_score,
             'average_score' => $this->range_average_score,
             'performance' => $this->range_performance,
+            'clears' => $this->range_clears,
+            'total_ss' => $this->range_total_ss,
+            'total_s' => $this->range_total_s,
+            'total_a' => $this->range_total_a,
             //name is a bit different, we wanna find stuff close to the name
             'name' => $this->name ? '%' . $this->name . '%' : null,
             'short_name' => $this->short_name ? '%' . $this->short_name . '%' : null

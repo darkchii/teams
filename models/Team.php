@@ -23,7 +23,8 @@ class Team
     {
         return $this->id == 0 ? '-' : $this->rank;
     }
-    public function getRankStr() {
+    public function getRankStr()
+    {
         return $this->rank == 0 ? '-' : '#' . $this->rank;
     }
     public function setRank($rank)
@@ -93,7 +94,7 @@ class Team
     public static function createFakeTotalTeam($teams)
     {
         $total_team = new Team(0, 0, 'Total', 'peppy', './img/wide-peppy.png', 0, false, true);
-        $total_team->addRuleset(new TeamRuleset(0, 'osu', 0, 0, 0, 0));
+        $total_team->addRuleset(new TeamRuleset(0, 'osu', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0));
 
         $total_average_score = 0;
         foreach ($teams as $team) {
@@ -107,6 +108,15 @@ class Team
             $total_average_score += $team->getRuleset()->getAverageScore();
             $total_team->getRuleset()->setPerformance($total_team->getRuleset()->getPerformance() + $team->getRuleset()->getPerformance());
             $total_team->setMembers($total_team->getMembers() + $team->getMembers());
+
+            $total_team->getRuleset()->setClears($total_team->getRuleset()->getClears() + $team->getRuleset()->getClears());
+            $total_team->getRuleset()->setTotalSS($total_team->getRuleset()->getTotalSS() + $team->getRuleset()->getTotalSS());
+            $total_team->getRuleset()->setTotalS($total_team->getRuleset()->getTotalS() + $team->getRuleset()->getTotalS());
+            $total_team->getRuleset()->setTotalA($total_team->getRuleset()->getTotalA() + $team->getRuleset()->getTotalA());
+            $total_team->getRuleset()->setTotalScore($total_team->getRuleset()->getTotalScore() + $team->getRuleset()->getTotalScore());
+            $total_team->getRuleset()->setPlayTime($total_team->getRuleset()->getPlayTime() + $team->getRuleset()->getPlayTime());
+            $total_team->getRuleset()->setReplaysWatched($total_team->getRuleset()->getReplaysWatched() + $team->getRuleset()->getReplaysWatched());
+            $total_team->getRuleset()->setTotalHits($total_team->getRuleset()->getTotalHits() + $team->getRuleset()->getTotalHits());
         }
         $total_team->getRuleset()->setAverageScore($total_average_score / count($teams));
 
@@ -118,7 +128,7 @@ class Team
         $query_filters = $filter->getSqlQueryFilters();
         $_order = ' ORDER BY ' . $filter->getSqlQueryOrder() . ' ' . $filter->getOrderDir();
         // $sql = 'SELECT * FROM osu_teams INNER JOIN osu_teams_ruleset ON osu_teams.id = osu_teams_ruleset.id AND mode = "' . $mode . '" ORDER BY performance DESC LIMIT ' . $limit;
-        $sql = 'SELECT osu_teams.*, osu_teams_ruleset.*, rank() over ('.$_order.') as rank FROM osu_teams';
+        $sql = 'SELECT osu_teams.*, osu_teams_ruleset.*, rank() over (' . $_order . ') as rank FROM osu_teams';
         $sql .= ' INNER JOIN osu_teams_ruleset ON osu_teams.id = osu_teams_ruleset.id AND mode = "' . $filter->getMode() . '" ';
         if (count($query_filters) > 0) {
             $sql .= ' WHERE ' . implode(' AND ', $query_filters);
@@ -129,7 +139,23 @@ class Team
         $teams = [];
         while ($row = $result->fetch_assoc()) {
             $team = new Team($row['rank'], $row['id'], $row['name'], $row['short_name'], $row['flag_url'], $row['members'], $row['deleted']);
-            $team->addRuleset(new TeamRuleset($row['id'], $row['mode'], $row['play_count'], $row['ranked_score'], $row['average_score'], $row['performance']));
+            $team->addRuleset(
+                new TeamRuleset(
+                    $row['id'], 
+                    $row['mode'], 
+                    $row['play_count'], 
+                    $row['ranked_score'], 
+                    $row['average_score'], 
+                    $row['performance'],
+                    $row['clears'],
+                    $row['total_ss'],
+                    $row['total_s'],
+                    $row['total_a'],
+                    $row['total_score'],
+                    $row['play_time'],
+                    $row['replays_watched'],
+                    $row['total_hits'],
+                ));
             $teams[] = $team;
         }
 

@@ -1,6 +1,6 @@
 <?php //enable error reporting 
-// error_reporting(E_ALL); 
-// ini_set('display_errors', 1);
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 require_once('models/TeamFilter.php');
 require_once('models/Team.php');
 $MAX_TEAMS_PER_PAGE = 100;
@@ -20,6 +20,10 @@ $MAX_TEAMS_PER_PAGE = 100;
     <meta name="keywords" content="osu!, teams, browser">
     <!-- favicon -->
     <link rel="icon" type="image/png" href="favicon.png">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/hint.css/3.0.0/hint.min.css"
+        integrity="sha512-Wh4+s2lPgPpBCBz8fdVpfOcEw3WJmNRxLefQZ9tlF6gH6iwf+LMZdJjB/qpSLWfk2WOgMqJmcmZDqDgihK5qCA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 
 <body>
@@ -35,7 +39,7 @@ $MAX_TEAMS_PER_PAGE = 100;
         //insert fake team at the start of the array
         $team_collection->addTeam(Team::createFakeTotalTeam($team_collection->getTeams()), true);
         ?>
-        <div style="width:80%;">
+        <div>
             <h1>osu! teams browser</h1>
             <div>
                 <div>
@@ -65,13 +69,10 @@ $MAX_TEAMS_PER_PAGE = 100;
                             <table style="width:100%">
                                 <!-- small range filters -->
                                 <?php
-                                $ranges = [
-                                    'members' => 'Members',
-                                    'play_count' => 'Play Count',
-                                    'ranked_score' => 'Ranked Score',
-                                    'average_score' => 'Average Score',
-                                    'performance' => 'Performance'
-                                ];
+                                $ranges = [];
+                                foreach ($team_order_options as $key => $value) {
+                                    $ranges[$key] = $value;
+                                }
                                 //these all go next to each other
                                 echo '<tr>';
                                 foreach ($ranges as $key => $value) {
@@ -82,14 +83,14 @@ $MAX_TEAMS_PER_PAGE = 100;
                                 echo '<tr>';
                                 foreach ($ranges as $key => $value) {
                                     $min = $filter->getRange($key)?->getMin(false);
-                                    echo '<td><input class="team-range-filter" type="number" name="' . $key . '_min" placeholder="' . $value . ' min" value="' . $min . '"></td>';
+                                    echo '<td><input size="8" class="team-range-filter" type="number" name="' . $key . '_min" placeholder="Min" value="' . $min . '"></td>';
                                 }
                                 echo '</tr>';
 
                                 echo '<tr>';
                                 foreach ($ranges as $key => $value) {
                                     $max = $filter->getRange($key)?->getMax(false);
-                                    echo '<td><input class="team-range-filter" type="number" name="' . $key . '_max" placeholder="' . $value . ' max" value="' . $max . '"></td>';
+                                    echo '<td><input size="8" class="team-range-filter" type="number" name="' . $key . '_max" placeholder="Max" value="' . $max . '"></td>';
                                 }
                                 echo '</tr>';
                                 ?>
@@ -157,7 +158,7 @@ $MAX_TEAMS_PER_PAGE = 100;
                 $element = '';
                 $element .= '<' . $_tag;
                 $element .= ' class="pagination-button ' . ($_disabled ? 'pagination-button-disabled' : '') . '"';
-                if(!$_disabled) {
+                if (!$_disabled) {
                     $element .= ' href="index.php?' . $_url . '"';
                 }
                 $element .= '>';
@@ -201,10 +202,11 @@ $MAX_TEAMS_PER_PAGE = 100;
                             <th>Tag</th>
                             <th>Team Name</th>
                             <th>Members</th>
-                            <th>Play Count</th>
-                            <th>Ranked Score</th>
-                            <th>Average Score</th>
-                            <th>Performance</th>
+                            <?php
+                            foreach ($team_stat_column_data as $key => $value) {
+                                echo '<th>' . $value['name'] . '</th>';
+                            }
+                            ?>
                         </tr>
                         <?php
                         foreach ($team_collection->getTeams($filter->getPage(), $MAX_TEAMS_PER_PAGE) as $team) {
@@ -214,14 +216,29 @@ $MAX_TEAMS_PER_PAGE = 100;
                             echo '<td>' . $team->getId() . '</td>';
                             echo '<td style="text-align:center;"><img loading="lazy" class="team-flag" src="' . $team->getFlagUrl() . '"></td>';
                             echo '<td style="' . ($team->getShortName() ? '' : 'font-style:italic;color:grey;') . '">' . ($team->getShortName() ?? 'N/A') . '</td>';
-                            echo '<td style="max-width:300px;">' . $team->getName() . '</td>';
+                            echo '<td style="max-width:150px;overflow:hidden;">' . $team->getName() . '</td>';
                             //add class 'hide-on-mobile' for non-active sorts
-                            // echo '<td>' . number_format($team->getMembers()) . '</td>';
                             echo '<td>' . number_format($team->getMembers()) . '</td>';
-                            echo '<td>' . number_format($team->getRuleset()->getPlayCount()) . '</td>';
-                            echo '<td>' . number_format($team->getRuleset()->getRankedScore()) . '</td>';
-                            echo '<td>' . number_format($team->getRuleset()->getAverageScore()) . '</td>';
-                            echo '<td>' . number_format($team->getRuleset()->getPerformance()) . 'pp</td>';
+                            // echo '<td>' . number_format($team->getMembers()) . '</td>';
+                            // echo '<td>' . number_format($team->getRuleset()->getClears()) . '</td>';
+                            // echo '<td>' . number_format($team->getRuleset()->getTotalSS()) . '</td>';
+                            // echo '<td>' . number_format($team->getRuleset()->getTotalS()) . '</td>';
+                            // echo '<td>' . number_format($team->getRuleset()->getTotalA()) . '</td>';
+                            // echo '<td>' . number_format($team->getRuleset()->getPlayCount()) . '</td>';
+                            // echo '<td>' . number_format($team->getRuleset()->getRankedScore()) . '</td>';
+                            // echo '<td>' . number_format($team->getRuleset()->getAverageScore()) . '</td>';
+                            // echo '<td>' . number_format($team->getRuleset()->getPerformance()) . 'pp</td>';
+                            $data = get_team_row_data($team);
+                            foreach ($data as $key => $value) {
+                                // echo '<td>' . $value['value'] . '</td>';
+                                echo '<td>';
+                                if ($value['tooltip']) {
+                                    echo '<span class="hint--top hint--no-arrow hint--no-animate" data-hint="' . $value['tooltip'] . '">' . $value['value'] . '</span>';
+                                } else {
+                                    echo $value['value'];
+                                }
+                                echo '</td>';
+                            }
                             echo '</tr>';
                         }
                         ?>
