@@ -189,6 +189,61 @@ class Team
         // return $teams;
     }
 
+    public static function getTeamById($query, $type = 'id'){
+        if($type == 'id' && !is_numeric($query)){
+            return null;
+        }
+        //validate $query for sql injection (we can expect a string)
+        $query = htmlspecialchars($query, ENT_QUOTES, 'UTF-8');
+
+        //we wanna get all modes regardless
+        $sql = 'SELECT osu_teams.* FROM osu_teams';
+        // $sql .= ' WHERE osu_teams.id = ' . $id;
+        switch($type){
+            case 'id':
+                $sql .= ' WHERE osu_teams.id = ' . $query;
+                break;
+            case 'short_name':
+                //watch out for what quotes are used here, double quote is usually column name, single quote is usually string
+                $sql .= " WHERE osu_teams.short_name = '[" . $query . "]'";
+                break;
+        }
+        $sql .= ' AND deleted = 0';
+        $sql .= ' LIMIT 1';
+        $result = DB::query($sql);
+
+        $team = null;
+
+        if($row = $result->fetch_assoc()){
+            $team = new Team($row['rank'] ?? 0, $row['id'], $row['name'], $row['short_name'], $row['flag_url'], $row['members'], $row['deleted']);
+            
+            //get all rulesets
+            $sql = 'SELECT * FROM osu_teams_ruleset WHERE id = ' . $row['id'];
+            $result = DB::query($sql);
+
+            while($row = $result->fetch_assoc()){
+                $team->addRuleset(
+                    new TeamRuleset(
+                        $row['id'], 
+                        $row['mode'], 
+                        $row['play_count'], 
+                        $row['ranked_score'], 
+                        $row['average_score'], 
+                        $row['performance'],
+                        $row['clears'],
+                        $row['total_ss'],
+                        $row['total_s'],
+                        $row['total_a'],
+                        $row['total_score'],
+                        $row['play_time'],
+                        $row['replays_watched'],
+                        $row['total_hits'],
+                    ));
+            }
+        }
+        return $team;
+    }
+
     public function addRuleset($ruleset)
     {
         $this->ruleset = $ruleset;
