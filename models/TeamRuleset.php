@@ -1,20 +1,20 @@
 <?php
 class TeamRuleset
 {
-    private $id;
-    private $mode;
-    private $play_count;
-    private $ranked_score;
-    private $average_score;
-    private $performance;
-    private $clears;
-    private $total_ss;
-    private $total_s;
-    private $total_a;
-    private $total_score;
-    private $play_time;
-    private $replays_watched;
-    private $total_hits;
+    public $id;
+    public $mode;
+    public $play_count;
+    public $ranked_score;
+    public $average_score;
+    public $performance;
+    public $clears;
+    public $total_ss;
+    public $total_s;
+    public $total_a;
+    public $total_score;
+    public $play_time;
+    public $replays_watched;
+    public $total_hits;
 
     //getters
     public function getId()

@@ -3,19 +3,21 @@ require_once('./db.php');
 require_once('./misc.php');
 require_once('TeamRuleset.php');
 require_once('TeamCollection.php');
+require_once('TeamMember.php');
 
 class Team
 {
-    private $rank;
-    private $id;
-    private $name;
-    private $ruleset;
-    private $short_name;
-    private $flag_url;
-    private $members;
-    private $last_updated;
-    private $deleted;
-    private $is_total_team = false;
+    public $rank;
+    public $id;
+    public $name;
+    public $ruleset;
+    public $short_name;
+    public $flag_url;
+    public $members;
+    public $last_updated;
+    public $deleted;
+    public $is_total_team = false;
+    public $members_list = [];
 
     //getters
 
@@ -247,5 +249,22 @@ class Team
     public function addRuleset($ruleset)
     {
         $this->ruleset = $ruleset;
+    }
+
+    public function fetchMembers(){
+        $this->members_list = TeamMember::getMembers($this->id);
+    }
+
+    public function getLeader() {
+        if(count($this->members_list) == 0){
+            return null;
+        }
+
+        foreach($this->members_list as $member){
+            if($member->getIsLeader()){
+                return $member;
+            }
+        }
+        return null;
     }
 }

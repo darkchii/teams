@@ -4,6 +4,18 @@ $team = Team::getTeamById($_GET['id']);
 if (!$team) {
     $team = Team::getTeamById($_GET['id'], 'short_name');
 }
+
+$description = "No team found";
+
+if($team){
+    $team->fetchMembers();
+
+    if(count($team->members_list) > 0){
+        $description = "Leader: ".$team->getLeader()->getUsername() . " | Members: " . $team->getMembers();
+    }else{
+        $description = "Check out ".$team->getName()." out on osu! website";
+    }
+}
 ?>
 
 <head>
@@ -12,7 +24,7 @@ if (!$team) {
     <?php require_once('views/TeamBaseHead.php'); ?>
 
     <meta property="og:title" content="<?php echo ($team!=null ? '['.$team->getShortName().'] '.$team->getName() : 'No team found') ?> - osu! teams browser">
-    <meta property="og:description" content="View information about <?php echo $team?->getName() ?? 'this team' ?> in osu!">
+    <meta property="og:description" content="<?php echo $description ?>">
     <meta property="og:image" content="<?php echo $team?->getFlagUrl() ?? '' ?>">
     <meta property="og:url" content="<?php echo $_SERVER['REQUEST_URI'] ?>">
     <meta name="theme-color" content="#ff21b9">
