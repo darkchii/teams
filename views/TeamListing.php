@@ -231,23 +231,13 @@
                             <?php
                             foreach ($team_collection->getTeams($filter->getPage(), $MAX_TEAMS_PER_PAGE) as $team) {
                                 $exists = !$team->getIsDeleted();
-                                echo '<tr class="' . ($team->getIsTotalTeam() ? "total-team " : "clickableRow ") . '' . ($exists ? "" : "dead-team ") . '" ' . ($team->getIsTotalTeam() ? "" : 'onclick="window.open(\'https://osu.ppy.sh/teams/' . $team->getId() . '\', \'_blank\');"') . '>';
+                                echo '<tr class="' . ($team->getIsTotalTeam() ? "total-team " : "clickableRow ") . '' . ($exists ? "" : "dead-team ") . '" ' . ($team->getIsTotalTeam() ? "" : 'onclick="window.open(\'/teams/id/' . $team->getId() . '\', \'_blank\');"') . '>';
                                 echo '<td>' . $team->getRankStr() . '</td>';
                                 echo '<td column-type="id">' . $team->getId() . '</td>';
                                 echo '<td style="text-align:center;"><img loading="lazy" class="team-flag" src="' . $team->getFlagUrl() . '"></td>';
-                                echo '<td style="' . ($team->getShortName() ? '' : 'font-style:italic;color:grey;') . '">' . ($team->getShortName() ?? 'N/A') . '</td>';
+                                echo '<td style="' . ($team->getShortName() ? '' : 'font-style:italic;color:grey;') . '">' . ($team->getShortName() ? ('['.$team->getShortName().']') : 'N/A') . '</td>';
                                 echo '<td style="max-width:150px;overflow:hidden;">' . $team->getName() . '</td>';
-                                //add class 'hide-on-mobile' for non-active sorts
                                 echo '<td column-type="members">' . number_format($team->getMembers()) . '</td>';
-                                // echo '<td>' . number_format($team->getMembers()) . '</td>';
-                                // echo '<td>' . number_format($team->getRuleset()->getClears()) . '</td>';
-                                // echo '<td>' . number_format($team->getRuleset()->getTotalSS()) . '</td>';
-                                // echo '<td>' . number_format($team->getRuleset()->getTotalS()) . '</td>';
-                                // echo '<td>' . number_format($team->getRuleset()->getTotalA()) . '</td>';
-                                // echo '<td>' . number_format($team->getRuleset()->getPlayCount()) . '</td>';
-                                // echo '<td>' . number_format($team->getRuleset()->getRankedScore()) . '</td>';
-                                // echo '<td>' . number_format($team->getRuleset()->getAverageScore()) . '</td>';
-                                // echo '<td>' . number_format($team->getRuleset()->getPerformance()) . 'pp</td>';
                                 $data = get_team_row_data($team);
                                 foreach ($data as $key => $value) {
                                     // echo '<td>' . $value['value'] . '</td>';
