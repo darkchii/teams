@@ -28,7 +28,6 @@
             $sql .= "LEFT JOIN osu_users ON osu_teams_members.user_id = osu_users.id ";
             $sql .= "WHERE team_id = " . $team_id . " ";
             $sql .= "GROUP BY osu_teams_members.user_id ";
-            var_dump($sql);
             //group by mode since we dont care
             $result = $conn->query($sql);
             $members = [];
