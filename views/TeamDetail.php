@@ -11,7 +11,7 @@ if (!$team) {
 
     <?php require_once('views/TeamBaseHead.php'); ?>
 
-    <meta property="og:title" content="<?php echo ($team!=null ? $team->getShortName().' '.$team->getName() : 'No team found') ?> - osu! teams browser">
+    <meta property="og:title" content="<?php echo ($team!=null ? '['.$team->getShortName().'] '.$team->getName() : 'No team found') ?> - osu! teams browser">
     <meta property="og:description" content="View information about <?php echo $team?->getName() ?? 'this team' ?> in osu!">
     <meta property="og:image" content="<?php echo $team?->getFlagUrl() ?? '' ?>">
     <meta property="og:url" content="<?php echo $_SERVER['REQUEST_URI'] ?>">
