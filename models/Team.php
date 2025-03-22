@@ -47,7 +47,7 @@ class Team
 
     public function getName()
     {
-        return $this->name;
+        return htmlspecialchars($this->name, ENT_QUOTES, 'UTF-8');
     }
     public function setName($name)
     {
@@ -59,7 +59,7 @@ class Team
     }
     public function getShortName()
     {
-        return $this->short_name;
+        return htmlspecialchars($this->short_name, ENT_QUOTES, 'UTF-8');
     }
     public function getFlagUrl()
     {
