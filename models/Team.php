@@ -16,6 +16,7 @@ class Team
     public $members;
     public $last_updated;
     public $deleted;
+    public $color;
     public $is_total_team = false;
     public $members_list = [];
 
@@ -80,8 +81,12 @@ class Team
     {
         return $this->deleted;
     }
+    public function getColor()
+    {
+        return $this->color ?? '#ffffff';
+    }
 
-    public function __construct($rank, $id, $name, $short_name, $flag_url, $members, $deleted, $is_total_team = false)
+    public function __construct($rank, $id, $name, $short_name, $flag_url, $members, $deleted, $color, $is_total_team = false)
     {
         $this->rank = $rank;
         $this->id = $id;
@@ -90,12 +95,13 @@ class Team
         $this->flag_url = $flag_url;
         $this->members = $members;
         $this->deleted = $deleted;
+        $this->color = $color;
         $this->is_total_team = $is_total_team;
     }
 
     public static function createFakeTotalTeam($teams)
     {
-        $total_team = new Team(0, 0, 'Total', 'peppy', './img/wide-peppy.png', 0, false, true);
+        $total_team = new Team(0, 0, 'Total', 'peppy', './img/wide-peppy.png', 0, false, null, true);
         $total_team->addRuleset(new TeamRuleset(0, 'osu', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0));
 
         $total_average_score = 0;
@@ -160,7 +166,7 @@ class Team
 
         $teams = [];
         while ($row = $result->fetch_assoc()) {
-            $team = new Team($row['rank'], $row['id'], $row['name'], $row['short_name'], $row['flag_url'], $row['members'], $row['deleted']);
+            $team = new Team($row['rank'], $row['id'], $row['name'], $row['short_name'], $row['flag_url'], $row['members'], $row['deleted'], $row['color']);
             $team->addRuleset(
                 new TeamRuleset(
                     $row['id'], 
@@ -217,7 +223,7 @@ class Team
         $team = null;
 
         if($row = $result->fetch_assoc()){
-            $team = new Team($row['rank'] ?? 0, $row['id'], $row['name'], $row['short_name'], $row['flag_url'], $row['members'], $row['deleted']);
+            $team = new Team($row['rank'] ?? 0, $row['id'], $row['name'], $row['short_name'], $row['flag_url'], $row['members'], $row['deleted'], $row['color']);
             
             //get all rulesets
             $sql = 'SELECT * FROM osu_teams_ruleset WHERE id = ' . $row['id'];

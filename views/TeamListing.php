@@ -235,7 +235,7 @@
                                 echo '<td>' . $team->getRankStr() . '</td>';
                                 echo '<td column-type="id">' . $team->getId() . '</td>';
                                 echo '<td style="text-align:center;"><img loading="lazy" class="team-flag" src="' . $team->getFlagUrl() . '"></td>';
-                                echo '<td style="' . ($team->getShortName() ? '' : 'font-style:italic;color:grey;') . '">' . ($team->getShortName() ? ('['.$team->getShortName().']') : 'N/A') . '</td>';
+                                echo '<td style="' . ($team->getShortName() ? '' : 'font-style:italic;color:grey;') . '">' . ($team->getShortName() ? ('<span class="hint--top hint--no-arrow hint--no-animate" data-hint="Team color: ' . $team->getColor() . '" style="color:' . $team->getColor() . '">⬤</span> [' . $team->getShortName() . ']') : 'N/A') . '</td>';
                                 echo '<td style="max-width:150px;overflow:hidden;">' . $team->getName() . '</td>';
                                 echo '<td column-type="members">' . number_format($team->getMembers()) . '</td>';
                                 $data = get_team_row_data($team);

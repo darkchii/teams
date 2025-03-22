@@ -27,7 +27,7 @@ if($team){
     <meta property="og:description" content="<?php echo $description ?>">
     <meta property="og:image" content="<?php echo $team?->getFlagUrl() ?? '' ?>">
     <meta property="og:url" content="<?php echo $_SERVER['REQUEST_URI'] ?>">
-    <meta name="theme-color" content="#ff21b9">
+    <meta name="theme-color" content="<?php echo $team?->getColor() ?? '#ff21b9' ?>">
     <meta name="twitter:card" content="summary_large_image">
 </head>
 
