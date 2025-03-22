@@ -213,7 +213,7 @@ class Team
                 break;
             case 'short_name':
                 //watch out for what quotes are used here, double quote is usually column name, single quote is usually string
-                $sql .= " WHERE osu_teams.short_name = '[" . $query . "]'";
+                $sql .= " WHERE osu_teams.short_name LIKE '" . $query . "'";
                 break;
         }
         $sql .= ' AND deleted = 0';
