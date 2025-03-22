@@ -59,7 +59,7 @@ class Team
     }
     public function getShortName()
     {
-        return htmlspecialchars($this->short_name, ENT_QUOTES, 'UTF-8');
+        return $this->short_name ? htmlspecialchars($this->short_name, ENT_QUOTES, 'UTF-8') : null;
     }
     public function getFlagUrl()
     {
