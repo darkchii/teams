@@ -192,6 +192,8 @@ class Team
             $team_collection->addTeam($team);
         }
 
+        $team_collection->calculateRankings();
+
         return $team_collection;
 
         // return $teams;

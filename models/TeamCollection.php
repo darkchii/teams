@@ -23,6 +23,22 @@ class TeamCollection
         }
     }
 
+    public function calculateRankings(){
+        $rank = 1;
+        foreach($this->teams as $team){
+            if($team->getId() == 0){
+                continue;
+            }
+
+            if($team->getIsDeleted()){
+                $team->setRank(-1);
+            }else{
+                $team->setRank($rank);
+                $rank++;
+            }
+        }
+    }
+
     public function getTeams($page = 1, $limit = null)
     {
         if($limit == null) {
