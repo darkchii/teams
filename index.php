@@ -16,7 +16,7 @@ require_once('models/Team.php');
     ?>
     <script>
         //get from php
-        let active_sorter = '<?php echo $filter->getOrder(); ?>';
+        let active_sorter = '<?php echo $filter?->getOrder() ?? 'rank' ?>';
     </script>
     <script src="script.js"></script>
 </html>
