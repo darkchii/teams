@@ -23,7 +23,8 @@ td {
     font-size: 13px;
 }
 
-th,td a {
+th,
+td a {
     color: white;
     text-decoration: none;
 }
@@ -153,6 +154,11 @@ tr:hover {
     margin: auto;
 }
 
+.team-filter-base-options {
+    display: flex;
+    flex-direction: row;
+}
+
 @media (max-width: 1200px) {
     .mobile-hidden {
         display: none;
@@ -183,5 +189,10 @@ tr:hover {
         max-width: 100%;
         padding-left: 0;
         padding-right: 0;
+    }
+
+    .filter-input-radio {
+        display: flex;
+        flex-direction: row;
     }
 }

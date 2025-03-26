@@ -43,10 +43,10 @@
                                 ?>
                             </select>
                             <!-- order by direction (radio buttons) -->
-                            <div style="display:flex;flex-direction:row">
+                            <div class="filter-input-radio">
                                 <input type="radio" name="order_dir" value="asc" <?php echo $filter->getOrderDir() == 'asc' ? 'checked' : ''; ?>> Ascending
                             </div>
-                            <div style="display:flex;flex-direction:row">
+                            <div class="filter-input-radio">
                                 <input type="radio" name="order_dir" value="desc" <?php echo $filter->getOrderDir() == 'desc' ? 'checked' : ''; ?>> Descending
                             </div>
                         </div>
