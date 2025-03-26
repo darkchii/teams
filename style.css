@@ -149,8 +149,8 @@ tr:hover {
 }
 
 .team-table-container {
-    padding-left: 10%;
-    padding-right: 10%;
+    max-width: 90%;
+    margin: auto;
 }
 
 @media (max-width: 1200px) {
@@ -180,6 +180,7 @@ tr:hover {
     }
 
     .team-table-container {
+        max-width: 100%;
         padding-left: 0;
         padding-right: 0;
     }
