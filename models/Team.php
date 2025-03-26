@@ -28,7 +28,7 @@ class Team
     }
     public function getRankStr()
     {
-        return $this->rank == 0 ? '-' : '#' . $this->rank;
+        return $this->rank <= 0 ? '-' : '#' . $this->rank;
     }
     public function setRank($rank)
     {
