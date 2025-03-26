@@ -12,12 +12,6 @@ body {
     max-width: 100px;
 }
 
-.team-table-container {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-}
-
 th,
 td {
     padding-left: 3px;
@@ -27,6 +21,11 @@ td {
     text-overflow: ellipsis;
     border: 2px solid black;
     font-size: 13px;
+}
+
+th,td a {
+    color: white;
+    text-decoration: none;
 }
 
 th {
@@ -147,4 +146,41 @@ tr:hover {
 
 .pagination-button-disabled {
     color: gray;
+}
+
+.team-table-container {
+    padding-left: 10%;
+    padding-right: 10%;
+}
+
+@media (max-width: 1200px) {
+    .mobile-hidden {
+        display: none;
+    }
+
+    /* all inputs in team-filter-base-options */
+    .team-filter-base-options * {
+        display: block;
+    }
+
+    .team-flag {
+        height: 25px;
+        max-height: 25px;
+    }
+
+    body {
+        font-size: 11px;
+    }
+
+    th,
+    td {
+        padding-left: 1px;
+        padding-right: 1px;
+        font-size: 11px;
+    }
+
+    .team-table-container {
+        padding-left: 0;
+        padding-right: 0;
+    }
 }

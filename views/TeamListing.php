@@ -28,7 +28,7 @@
                         <input type="hidden" name="mode" value="<?php echo $filter->getMode(true); ?>">
                         <input type="hidden" name="page" value="<?php echo $filter->getPage(); ?>">
 
-                        <div>
+                        <div class="team-filter-base-options">
                             <!-- name filter -->
                             <input type="text" name="name" placeholder="Team name"
                                 value="<?php echo $filter->getName(); ?>">
@@ -43,10 +43,14 @@
                                 ?>
                             </select>
                             <!-- order by direction (radio buttons) -->
-                            <input type="radio" name="order_dir" value="asc" <?php echo $filter->getOrderDir() == 'asc' ? 'checked' : ''; ?>> Ascending
-                            <input type="radio" name="order_dir" value="desc" <?php echo $filter->getOrderDir() == 'desc' ? 'checked' : ''; ?>> Descending
+                            <div style="display:flex;flex-direction:row">
+                                <input type="radio" name="order_dir" value="asc" <?php echo $filter->getOrderDir() == 'asc' ? 'checked' : ''; ?>> Ascending
+                            </div>
+                            <div style="display:flex;flex-direction:row">
+                                <input type="radio" name="order_dir" value="desc" <?php echo $filter->getOrderDir() == 'desc' ? 'checked' : ''; ?>> Descending
+                            </div>
                         </div>
-                        <div>
+                        <div class="mobile-hidden">
                             <table style="width:100%">
                                 <!-- small range filters -->
                                 <?php
@@ -168,12 +172,13 @@
             
             echo '<div class="pagination">';
             echo getPaginationElement($prev_page, $page, "Previous");
+            $pagination_pages = 5;
             for ($i = 1; $i <= $total_pages; $i++) {
-                if ($i < $page - 10 && $i > 1) {
+                if ($i < $page - $pagination_pages && $i > 1) {
                     echo '<span>...</span>';
-                    $i = $page - 10;
+                    $i = $page - $pagination_pages;
                 }
-                if ($i > $page + 10 && $i < $total_pages) {
+                if ($i > $page + $pagination_pages && $i < $total_pages) {
                     echo '<span>...</span>';
                     $i = $total_pages;
                 }
@@ -200,17 +205,9 @@
                             <col column-type="members" id="col_members" />
                             <?php
                             foreach ($team_stat_column_data as $key => $value) {
-                                echo '<col column-type="' . $key . '" id="col_' . $key . '" />';
+                                echo '<col class="'.(($filter->getOrder() == $key) ? 'active-sort' : 'mobile-hidden').'" column-type="' . $key . '" id="col_' . $key . '" />';
                             }
                             ?>
-                            <script>
-                                //add class 'active-sort' to the column that is currently being sorted (use php)
-                                let active_id = `col_<?php echo $filter->getOrder(); ?>`;
-                                let active_col = document.getElementById(active_id);
-                                if (active_col) {
-                                    active_col.classList.add('active-sort');
-                                }
-                            </script>
                         </colgroup>
                         <thead>
                             <tr>
@@ -222,7 +219,7 @@
                                 <th column-type="members">Members</th>
                                 <?php
                                 foreach ($team_stat_column_data as $key => $value) {
-                                    echo '<th column-type="' . $key . '">' . $value['name'] . '</th>';
+                                    echo '<th class="'.(($filter->getOrder() == $key) ? 'active-sort' : 'mobile-hidden').'" column-type="' . $key . '">' . $value['name'] . '</th>';
                                 }
                                 ?>
                             </tr>
@@ -231,17 +228,17 @@
                             <?php
                             foreach ($team_collection->getTeams($filter->getPage(), $MAX_TEAMS_PER_PAGE) as $team) {
                                 $exists = !$team->getIsDeleted();
-                                echo '<tr class="' . ($team->getIsTotalTeam() ? "total-team " : "clickableRow ") . '' . ($exists ? "" : "dead-team ") . '" ' . ($team->getIsTotalTeam() ? "" : 'onclick="window.open(\'/teams/id/' . $team->getId() . '\', \'_blank\');"') . '>';
+                                echo '<tr class="' . ($team->getIsTotalTeam() ? "total-team " : " ") . '' . ($exists ? "" : "dead-team ") . '">';
                                 echo '<td>' . $team->getRankStr() . '</td>';
                                 echo '<td column-type="id">' . $team->getId() . '</td>';
                                 echo '<td style="text-align:center;"><img loading="lazy" class="team-flag" src="' . $team->getFlagUrl() . '"></td>';
                                 echo '<td style="' . ($team->getShortName() ? '' : 'font-style:italic;color:grey;') . '">' . ($team->getShortName() ? ('<span class="hint--top hint--no-arrow hint--no-animate" data-hint="Team color: ' . $team->getColor() . '" style="color:' . $team->getColor() . '">⬤</span> [' . $team->getShortName() . ']') : 'N/A') . '</td>';
-                                echo '<td style="max-width:150px;overflow:hidden;">' . $team->getName() . '</td>';
+                                echo '<td style="max-width:150px;overflow:hidden;"><a href="/teams/id/' . $team->getId() . '" target="_blank">' . $team->getName() . '</a></td>';
                                 echo '<td column-type="members">' . number_format($team->getMembers()) . '</td>';
                                 $data = get_team_row_data($team);
                                 foreach ($data as $key => $value) {
                                     // echo '<td>' . $value['value'] . '</td>';
-                                    echo '<td column-type="' . $key . '">';
+                                    echo '<td class="'.(($filter->getOrder() == $key) ? 'active-sort' : 'mobile-hidden').'" column-type="' . $key . '">';
                                     if ($value['tooltip']) {
                                         echo '<span class="hint--top hint--no-arrow hint--no-animate" data-hint="' . $value['tooltip'] . '">' . $value['value'] . '</span>';
                                     } else {
