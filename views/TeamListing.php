@@ -68,14 +68,16 @@
                                 echo '<tr>';
                                 foreach ($ranges as $key => $value) {
                                     $min = $filter->getRange($key)?->getMin(false);
-                                    echo '<td><input size="8" class="team-range-filter" type="number" name="' . $key . '_min" placeholder="Min" value="' . $min . '"></td>';
+                                    $option = $team_order_options[$key];
+                                    echo '<td><input size="8" class="team-range-filter" type="'.($option['type'] ?? 'number').'" name="' . $key . '_min" placeholder="Min" value="' . $min . '"></td>';
                                 }
                                 echo '</tr>';
 
                                 echo '<tr>';
                                 foreach ($ranges as $key => $value) {
                                     $max = $filter->getRange($key)?->getMax(false);
-                                    echo '<td><input size="8" class="team-range-filter" type="number" name="' . $key . '_max" placeholder="Max" value="' . $max . '"></td>';
+                                    $option = $team_order_options[$key];
+                                    echo '<td><input size="8" class="team-range-filter" type="'.($option['type'] ?? 'number').'" name="' . $key . '_max" placeholder="Max" value="' . $max . '"></td>';
                                 }
                                 echo '</tr>';
 

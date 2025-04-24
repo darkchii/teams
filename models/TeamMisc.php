@@ -28,7 +28,7 @@ $team_order_options = [
     'performance' => [ 'name' => 'Performance', 'can_hide' => true ],
     'replays_watched' => [ 'name' => 'Replays Watched', 'can_hide' => true ],
     'total_hits' => [ 'name' => 'Total Hits', 'can_hide' => true ],
-    'created_at' => [ 'name' => 'Formed', 'can_hide' => true ],
+    'created_at' => [ 'name' => 'Formed', 'can_hide' => true, 'type' => 'date' ],
 ];
 
 $team_stat_column_data = [

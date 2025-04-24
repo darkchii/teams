@@ -165,6 +165,14 @@ class TeamFilter
                     if (preg_match('/[^a-zA-Z0-9_ %\[\]\(\)%&-]/', $value)) {
                         die('Invalid name');
                     }
+                } else if($key=='created_at'){
+                    //check if the value is a valid date string
+                    if($value->getMin() && !DateTime::createFromFormat('Y-m-d', $value->getMin())) {
+                        die('Invalid date format');
+                    }
+                    if($value->getMax() && !DateTime::createFromFormat('Y-m-d', $value->getMax())) {
+                        die('Invalid date format');
+                    }
                 } else {
                     if (!is_numeric($value->getMin()) || !is_numeric($value->getMax())) {
                         die('Invalid range');
@@ -196,65 +204,95 @@ class TeamFilter
                 }
 
                 if ($key == 'id_min'){
-                    $this->range_id = new Range($value, PHP_INT_MAX);
+                    if(!$this->range_id) { $this->range_id = new Range(0, PHP_INT_MAX); }
+                    $this->range_id->setMin($value);
                 } else if ($key == 'id_max') {
-                    $this->range_id = new Range(0, $value);
+                    if(!$this->range_id) { $this->range_id = new Range(0, PHP_INT_MAX); }
+                    $this->range_id->setMax($value);
                 } else if ($key == 'members_min') {
-                    $this->range_members = new Range($value, PHP_INT_MAX);
+                    if(!$this->range_members) { $this->range_members = new Range(0, PHP_INT_MAX); }
+                    $this->range_members->setMin($value);
                 } else if ($key == 'members_max') {
-                    $this->range_members = new Range(0, $value);
+                    if(!$this->range_members) { $this->range_members = new Range(0, PHP_INT_MAX); }
+                    $this->range_members->setMax($value);
                 } else if ($key == 'play_count_min') {
-                    $this->range_play_count = new Range($value, PHP_INT_MAX);
+                    if(!$this->range_play_count) { $this->range_play_count = new Range(0, PHP_INT_MAX); }
+                    $this->range_play_count->setMin($value);
                 } else if ($key == 'play_count_max') {
-                    $this->range_play_count = new Range(0, $value);
+                    if(!$this->range_play_count) { $this->range_play_count = new Range(0, PHP_INT_MAX); }
+                    $this->range_play_count->setMax($value);
                 } else if ($key == 'ranked_score_min') {
-                    $this->range_ranked_score = new Range($value, PHP_INT_MAX);
+                    if(!$this->range_ranked_score) { $this->range_ranked_score = new Range(0, PHP_INT_MAX); }
+                    $this->range_ranked_score->setMin($value);
                 } else if ($key == 'ranked_score_max') {
-                    $this->range_ranked_score = new Range(0, $value);
+                    if(!$this->range_ranked_score) { $this->range_ranked_score = new Range(0, PHP_INT_MAX); }
+                    $this->range_ranked_score->setMax($value);
                 } else if ($key == 'average_score_min') {
-                    $this->range_average_score = new Range($value, PHP_INT_MAX);
+                    if(!$this->range_average_score) { $this->range_average_score = new Range(0, PHP_INT_MAX); }
+                    $this->range_average_score->setMin($value);
                 } else if ($key == 'average_score_max') {
-                    $this->range_average_score = new Range(0, $value);
+                    if(!$this->range_average_score) { $this->range_average_score = new Range(0, PHP_INT_MAX); }
+                    $this->range_average_score->setMax($value);
                 } else if ($key == 'performance_min') {
-                    $this->range_performance = new Range($value, PHP_INT_MAX);
+                    if(!$this->range_performance) { $this->range_performance = new Range(0, PHP_INT_MAX); }
+                    $this->range_performance->setMin($value);
                 } else if ($key == 'performance_max') {
-                    $this->range_performance = new Range(0, $value);
+                    if(!$this->range_performance) { $this->range_performance = new Range(0, PHP_INT_MAX); }
+                    $this->range_performance->setMax($value);
                 } else if ($key == 'clears_min') {
-                    $this->range_clears = new Range($value, PHP_INT_MAX);
+                    if(!$this->range_clears) { $this->range_clears = new Range(0, PHP_INT_MAX); }
+                    $this->range_clears->setMin($value);
                 } else if ($key == 'clears_max') {
-                    $this->range_clears = new Range(0, $value);
+                    if(!$this->range_clears) { $this->range_clears = new Range(0, PHP_INT_MAX); }
+                    $this->range_clears->setMax($value);
                 } else if ($key == 'total_ss_min') {
-                    $this->range_total_ss = new Range($value, PHP_INT_MAX);
+                    if(!$this->range_total_ss) { $this->range_total_ss = new Range(0, PHP_INT_MAX); }
+                    $this->range_total_ss->setMin($value);
                 } else if ($key == 'total_ss_max') {
-                    $this->range_total_ss = new Range(0, $value);
+                    if(!$this->range_total_ss) { $this->range_total_ss = new Range(0, PHP_INT_MAX); }
+                    $this->range_total_ss->setMax($value);
                 } else if ($key == 'total_s_min') {
-                    $this->range_total_s = new Range($value, PHP_INT_MAX);
+                    if(!$this->range_total_s) { $this->range_total_s = new Range(0, PHP_INT_MAX); }
+                    $this->range_total_s->setMin($value);
                 } else if ($key == 'total_s_max') {
-                    $this->range_total_s = new Range(0, $value);
+                    if(!$this->range_total_s) { $this->range_total_s = new Range(0, PHP_INT_MAX); }
+                    $this->range_total_s->setMax($value);
                 } else if ($key == 'total_a_min') {
-                    $this->range_total_a = new Range($value, PHP_INT_MAX);
+                    if(!$this->range_total_a) { $this->range_total_a = new Range(0, PHP_INT_MAX); }
+                    $this->range_total_a->setMin($value);
                 } else if ($key == 'total_a_max') {
-                    $this->range_total_a = new Range(0, $value);
+                    if(!$this->range_total_a) { $this->range_total_a = new Range(0, PHP_INT_MAX); }
+                    $this->range_total_a->setMax($value);
                 } else if ($key == 'total_score_min') {
-                    $this->range_total_score = new Range($value, PHP_INT_MAX);
+                    if(!$this->range_total_score) { $this->range_total_score = new Range(0, PHP_INT_MAX); }
+                    $this->range_total_score->setMin($value);
                 } else if ($key == 'total_score_max') {
-                    $this->range_total_score = new Range(0, $value);
+                    if(!$this->range_total_score) { $this->range_total_score = new Range(0, PHP_INT_MAX); }
+                    $this->range_total_score->setMax($value);
                 } else if ($key == 'play_time_min') {
-                    $this->range_play_time = new Range($value, PHP_INT_MAX);
+                    if(!$this->range_play_time) { $this->range_play_time = new Range(0, PHP_INT_MAX); }
+                    $this->range_play_time->setMin($value);
                 } else if ($key == 'play_time_max') {
-                    $this->range_play_time = new Range(0, $value);
+                    if(!$this->range_play_time) { $this->range_play_time = new Range(0, PHP_INT_MAX); }
+                    $this->range_play_time->setMax($value);
                 } else if ($key == 'replays_watched_min') {
-                    $this->range_replays_watched = new Range($value, PHP_INT_MAX);
+                    if(!$this->range_replays_watched) { $this->range_replays_watched = new Range(0, PHP_INT_MAX); }
+                    $this->range_replays_watched->setMin($value);
                 } else if ($key == 'replays_watched_max') {
-                    $this->range_replays_watched = new Range(0, $value);
+                    if(!$this->range_replays_watched) { $this->range_replays_watched = new Range(0, PHP_INT_MAX); }
+                    $this->range_replays_watched->setMax($value);
                 } else if ($key == 'total_hits_min') {
-                    $this->range_total_hits = new Range($value, PHP_INT_MAX);
+                    if(!$this->range_total_hits) { $this->range_total_hits = new Range(0, PHP_INT_MAX); }
+                    $this->range_total_hits->setMin($value);
                 } else if ($key == 'total_hits_max') {
-                    $this->range_total_hits = new Range(0, $value);
+                    if(!$this->range_total_hits) { $this->range_total_hits = new Range(0, PHP_INT_MAX); }
+                    $this->range_total_hits->setMax($value);
                 } else if ($key == 'created_at_min') {
-                    $this->range_created_at = new Range($value, null);
+                    if(!$this->range_created_at) { $this->range_created_at = new Range('1970-01-01', '9999-01-01', 'date'); }
+                    $this->range_created_at->setMin($value);
                 } else if ($key == 'created_at_max') {
-                    $this->range_created_at = new Range(null, $value);
+                    if(!$this->range_created_at) { $this->range_created_at = new Range('1970-01-01', '9999-01-01', 'date'); }
+                    $this->range_created_at->setMax($value);
                 } else if ($key == 'order') {
                     $this->order = $value;
                 } else if ($key == 'order_dir') {
@@ -302,7 +340,12 @@ class TeamFilter
                 if ($key == 'name' || $key == 'short_name') {
                     $filters[] = $key . ' LIKE "' . $value . '"';
                 } else {
-                    $filters[] = $key . ' BETWEEN ' . $value->getMin() . ' AND ' . $value->getMax();
+                    $is_not_numeric = !$value->is_numeric;
+                    if($value->is_numeric){
+                        $filters[] = $key . ' BETWEEN ' . $value->getDefaultMin() . ' AND ' . $value->getDefaultMax();
+                    }else{
+                        $filters[] = $key . ' BETWEEN "' . $value->getDefaultMin() . '" AND "' . $value->getDefaultMax() . '"';
+                    }
                 }
             }
         }
