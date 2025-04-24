@@ -167,31 +167,35 @@
                 return $element;
             }
 
+            function getPagination() {
+                global $page, $total_pages, $prev_page, $next_page, $prev_disabled, $next_disabled;
+                echo '<div class="pagination">';
+                echo getPaginationElement($prev_page, $page, "Previous");
+                $pagination_pages = 5;
+                for ($i = 1; $i <= $total_pages; $i++) {
+                    if ($i < $page - $pagination_pages && $i > 1) {
+                        echo '<span>...</span>';
+                        $i = $page - $pagination_pages;
+                    }
+                    if ($i > $page + $pagination_pages && $i < $total_pages) {
+                        echo '<span>...</span>';
+                        $i = $total_pages;
+                    }
+                    if ($i < 1) {
+                        continue;
+                    }
+                    if ($i > $total_pages) {
+                        break;
+                    }
+                    echo getPaginationElement($i, $page);
+                }
+                echo getPaginationElement($next_page, $page, "Next");
+                echo '</div>';
+            }
+
             //show Previous and Next buttons
             //Also show 10 pages before and after the current page (if in bounds)
-            
-            echo '<div class="pagination">';
-            echo getPaginationElement($prev_page, $page, "Previous");
-            $pagination_pages = 5;
-            for ($i = 1; $i <= $total_pages; $i++) {
-                if ($i < $page - $pagination_pages && $i > 1) {
-                    echo '<span>...</span>';
-                    $i = $page - $pagination_pages;
-                }
-                if ($i > $page + $pagination_pages && $i < $total_pages) {
-                    echo '<span>...</span>';
-                    $i = $total_pages;
-                }
-                if ($i < 1) {
-                    continue;
-                }
-                if ($i > $total_pages) {
-                    break;
-                }
-                echo getPaginationElement($i, $page);
-            }
-            echo getPaginationElement($next_page, $page, "Next");
-            echo '</div>';
+            getPagination();
             ?>
             <div>
                 <div>
@@ -253,5 +257,8 @@
                     </table>
                 </div>
             </div>
+            <?php
+            getPagination();
+            ?>
         </div>
 </body>
