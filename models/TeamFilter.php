@@ -25,6 +25,7 @@ class TeamFilter
     private $range_play_time;
     private $range_replays_watched;
     private $range_total_hits;
+    private $range_created_at;
 
     private $order = 'performance';
     private $order_dir = 'desc';
@@ -113,6 +114,10 @@ class TeamFilter
     public function getRangeTotalHits()
     {
         return $this->range_total_hits;
+    }
+    public function getRangeCreatedAt()
+    {
+        return $this->range_created_at;
     }
     public function getOrder()
     {
@@ -246,6 +251,10 @@ class TeamFilter
                     $this->range_total_hits = new Range($value, PHP_INT_MAX);
                 } else if ($key == 'total_hits_max') {
                     $this->range_total_hits = new Range(0, $value);
+                } else if ($key == 'created_at_min') {
+                    $this->range_created_at = new Range($value, null);
+                } else if ($key == 'created_at_max') {
+                    $this->range_created_at = new Range(null, $value);
                 } else if ($key == 'order') {
                     $this->order = $value;
                 } else if ($key == 'order_dir') {
@@ -277,7 +286,8 @@ class TeamFilter
             'total_a' => $this->range_total_a,
             //name is a bit different, we wanna find stuff close to the name
             'name' => $this->name ? '%' . $this->name . '%' : null,
-            'short_name' => $this->short_name ? '%' . $this->short_name . '%' : null
+            'short_name' => $this->short_name ? '%' . $this->short_name . '%' : null,
+            'created_at' => $this->range_created_at,
         ];
     }
 

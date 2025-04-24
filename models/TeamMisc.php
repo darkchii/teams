@@ -28,73 +28,47 @@ $team_order_options = [
     'performance' => [ 'name' => 'Performance', 'can_hide' => true ],
     'replays_watched' => [ 'name' => 'Replays Watched', 'can_hide' => true ],
     'total_hits' => [ 'name' => 'Total Hits', 'can_hide' => true ],
+    'created_at' => [ 'name' => 'Formed', 'can_hide' => true ],
 ];
 
-// $team_stat_column_data = [
-//     //contains the display name and the formatter function (if null, regular number formatting is used)
-//     'clears' => ['Clears', null],
-//     'total_ss' => ['Total SS', null],
-//     'total_s' => ['Total S', null],
-//     'total_a' => ['Total A', null],
-//     'play_count' => ['Play Count', null],
-//     'play_time' => [
-//         'Play Time',
-//         function ($value) {
-//             //convert second count to readable time format
-//             return seconds2human($value);
-//         },
-//         true
-//     ],
-//     'ranked_score' => ['Ranked Score', function ($value) {
-//         return shorten_number($value);
-//     }, true],
-//     'total_score' => ['Total Score', function ($value) {
-//         return shorten_number($value);
-//     }, true],
-//     'average_score' => ['Average Score', function ($value) {
-//         return number_format($value, 0);
-//     }, true],
-//     'total_hits' => ['Total Hits', null],
-//     'replays_watched' => ['Replays Watched', null],
-//     'performance' => [
-//         'Performance',
-//         function ($value) {
-//             return number_format($value, 0) . 'pp';
-//         }
-//     ],
-// ];
 $team_stat_column_data = [
     'clears' => [
         'name' => 'Clears',
         'formatter' => null,
-        'tooltip' => false
+        'tooltip' => false,
+        'is_ruleset_value' => true
     ],
     'total_ss' => [
         'name' => 'Total SS',
         'formatter' => null,
-        'tooltip' => false
+        'tooltip' => false,
+        'is_ruleset_value' => true
     ],
     'total_s' => [
         'name' => 'Total S',
         'formatter' => null,
-        'tooltip' => false
+        'tooltip' => false,
+        'is_ruleset_value' => true
     ],
     'total_a' => [
         'name' => 'Total A',
         'formatter' => null,
-        'tooltip' => false
+        'tooltip' => false,
+        'is_ruleset_value' => true
     ],
     'play_count' => [
         'name' => 'Play Count',
         'formatter' => null,
-        'tooltip' => false
+        'tooltip' => false,
+        'is_ruleset_value' => true
     ],
     'play_time' => [
         'name' => 'Play Time',
         'formatter' => function ($value) {
             return seconds2human($value);
         },
-        'tooltip' => false
+        'tooltip' => false,
+        'is_ruleset_value' => true
     ],
     'ranked_score' => [
         'name' => 'Ranked Score',
@@ -103,7 +77,8 @@ $team_stat_column_data = [
         },
         'tooltip' => function ($value) {
             return number_format($value, 0);
-        }
+        },
+        'is_ruleset_value' => true
     ],
     'total_score' => [
         'name' => 'Total Score',
@@ -112,7 +87,8 @@ $team_stat_column_data = [
         },
         'tooltip' => function ($value) {
             return number_format($value, 0);
-        }
+        },
+        'is_ruleset_value' => true
     ],
     'average_score' => [
         'name' => 'Average Score',
@@ -121,7 +97,8 @@ $team_stat_column_data = [
         },
         'tooltip' => function ($value) {
             return number_format($value, 0);
-        }
+        },
+        'is_ruleset_value' => true
     ],
     'total_hits' => [
         'name' => 'Total Hits',
@@ -130,21 +107,38 @@ $team_stat_column_data = [
         },
         'tooltip' => function ($value) {
             return number_format($value, 0);
-        }
+        },
+        'is_ruleset_value' => true
     ],
     'replays_watched' => [
         'name' => 'Replays Watched',
         'formatter' => null,
-        'tooltip' => false
+        'tooltip' => false,
+        'is_ruleset_value' => true
     ],
     'performance' => [
         'name' => 'Performance',
         'formatter' => function ($value) {
             return number_format($value, 0) . 'pp';
         },
-        'tooltip' => false
+        'tooltip' => false,
+        'is_ruleset_value' => true
+    ],
+    'created_at' => [
+        'name' => 'Formed',
+        'formatter' => function ($value) {
+            return getTeamDateString($value);
+        },
+        'tooltip' => false,
+        'is_ruleset_value' => false
     ],
 ];
+
+function getTeamDateString($str){
+    $format = 'Y-m-d H:i:s';
+    $dateTime = DateTime::createFromFormat($format, $str);
+    return $dateTime->format('Y-m-d H:i:s');
+}
 
 function get_team_row_data($team)
 {
@@ -153,7 +147,7 @@ function get_team_row_data($team)
     foreach ($team_stat_column_data as $key => $value) {
         $formatter = $value['formatter'] ?? 'number_format';
         $formatter_tooltip = $value['tooltip'];
-        $val = $team->getRuleset()->get($key);
+        $val = $value['is_ruleset_value'] ? $team->getRuleset()->get($key) : $team->get($key);
         $data[$key] = [
             'value' => $val,
             'tooltip' => null
