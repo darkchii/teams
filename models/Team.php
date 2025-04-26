@@ -210,6 +210,74 @@ class Team
         // return $teams;
     }
 
+    //get the count of teams by creation date per day and per month
+    //this is used for the graph on the main page
+    /**
+     * Get the count of teams by creation date
+     * @param string $size The size of the date (day or month)
+     * @param bool $fill Whether to fill the gaps in the data
+     * @return array The counts of teams by creation date
+     */
+    public static function getCountsByCreationDate($size = 'day', $fill = false){
+        $sql = '';
+        switch($size){
+            //excluding team ID 1, its the first team made during development, which splits the data by 2 months. too much empty space
+            case 'day':
+                $sql = 'SELECT DATE(created_at) as date, COUNT(*) as count FROM osu_teams WHERE deleted = false AND id != 1 GROUP BY DATE(created_at) ORDER BY DATE(created_at) DESC';
+                break;
+            case 'month':
+                $sql = 'SELECT DATE_FORMAT(created_at, "%Y-%m") as date, COUNT(*) as count FROM osu_teams WHERE deleted = false AND id != 1 GROUP BY DATE_FORMAT(created_at, "%Y-%m") ORDER BY DATE_FORMAT(created_at, "%Y-%m") DESC';
+                break;
+        }
+        $result = DB::query($sql);
+
+        $counts = [];
+
+        while($row = $result->fetch_assoc()){
+            $counts[] = [
+                'date' => $row['date'],
+                'count' => $row['count']
+            ];
+        }
+
+        //if we want to fill the gaps in the data, we need to get the first and last date and fill in the gaps
+        if($fill){
+            $first_date = new DateTime($counts[count($counts) - 1]['date']);
+            $last_date = new DateTime($counts[0]['date']);
+
+            //create a date interval of 1 day or 1 month depending on the size
+            $interval = new DateInterval('P1D');
+            if($size == 'month'){
+                $interval = new DateInterval('P1M');
+            }
+
+            //create a date period from the first date to the last date with the interval
+            $period = new DatePeriod($first_date, $interval, $last_date->modify('+1 day'));
+
+            //loop through the period and fill in the gaps
+            foreach($period as $date){
+                $date_str = $date->format('Y-m-d');
+                if($size == 'month'){
+                    $date_str = $date->format('Y-m');
+                }
+                //check if the date is already in the array
+                if(!in_array($date_str, array_column($counts, 'date'))){
+                    $counts[] = [
+                        'date' => $date_str,
+                        'count' => 0
+                    ];
+                }
+            }
+        }
+
+        //sort the array by date
+        usort($counts, function($a, $b) {
+            return strtotime($a['date']) - strtotime($b['date']);
+        });
+
+        return $counts;
+    }
+
     public static function getTeamById($query, $type = 'id'){
         if($type == 'id' && !is_numeric($query)){
             return null;

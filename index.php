@@ -9,7 +9,11 @@ require_once('models/Team.php');
     <?php
         //if ID is not set in url query
         if(!isset($_GET['id'])){
-            require_once('views/TeamListing.php');
+            if(isset($_GET['view']) && $_GET['view'] !== 'list'){
+                require_once('views/TeamGraphs.php');
+            }else{
+                require_once('views/TeamListing.php');
+            }
         }else{
             require_once('views/TeamDetail.php');
         }

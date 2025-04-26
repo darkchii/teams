@@ -1,3 +1,5 @@
 # Allow for stuff like /id/123 to be rewritten to /index.php?id=123
 RewriteEngine On
 RewriteRule ^id/([a-zA-Z0-9_-]+)$ index.php?id=$1 [L,QSA]
+# For the rest, rewrite stuff like /graphs to /index.php?view=graphs
+RewriteRule ^([a-zA-Z0-9_-]+)$ index.php?view=$1 [L,QSA]

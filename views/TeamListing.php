@@ -20,7 +20,8 @@
         //insert fake team at the start of the array
         $team_collection->addTeam(Team::createFakeTotalTeam($team_collection->getTeams()), true);
         ?>
-        <div>
+        <div style="max-width:100%;">
+            <?php require_once('elements/Header.php'); ?>
             <h1>osu! teams browser</h1>
             <div>
                 <div>
@@ -50,52 +51,39 @@
                                 <input type="radio" name="order_dir" value="desc" <?php echo $filter->getOrderDir() == 'desc' ? 'checked' : ''; ?>> Descending
                             </div>
                         </div>
-                        <div class="mobile-hidden">
-                            <table style="width:100%">
-                                <!-- small range filters -->
-                                <?php
-                                $ranges = [];
-                                foreach ($team_order_options as $key => $value) {
-                                    $ranges[$key] = $value['name'];
-                                }
-                                //these all go next to each other
-                                echo '<tr>';
-                                foreach ($ranges as $key => $value) {
-                                    echo '<td>' . $value . '</td>';
-                                }
-                                echo '</tr>';
+                        <button style='margin-top: 5px;' for="team-filter" type="button" class="collapsible">Advanced filters</button>
 
-                                echo '<tr>';
-                                foreach ($ranges as $key => $value) {
-                                    $min = $filter->getRange($key)?->getMin(false);
-                                    $option = $team_order_options[$key];
-                                    echo '<td><input size="8" class="team-range-filter" type="'.($option['type'] ?? 'number').'" name="' . $key . '_min" placeholder="Min" value="' . $min . '"></td>';
-                                }
-                                echo '</tr>';
-
-                                echo '<tr>';
-                                foreach ($ranges as $key => $value) {
-                                    $max = $filter->getRange($key)?->getMax(false);
-                                    $option = $team_order_options[$key];
-                                    echo '<td><input size="8" class="team-range-filter" type="'.($option['type'] ?? 'number').'" name="' . $key . '_max" placeholder="Max" value="' . $max . '"></td>';
-                                }
-                                echo '</tr>';
-
-                                echo '<tr>';
-                                //add checkboxes to hide columns
-                                //use memory to remember which columns are hidden
-                                //dont use this in the form, javascript should deal with this
-                                foreach ($team_order_options as $key => $value) {
-                                    if ($value['can_hide']) {
-                                        echo '<td><input exclude="true" is_column_hider="true" type="checkbox" name="' . $key . '_hide">Hide</td>';
-                                    } else {
-                                        echo '<td></td>';
+                        <div class="collapsible-div" style='margin-top: 5px;' id="team-filter">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Filter</th>
+                                        <th>Min</th>
+                                        <th>Max</th>
+                                        <th>Hide</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php
+                                    foreach($team_order_options as $key => $value) {
+                                        $min = $filter->getRange($key)?->getMin(false);
+                                        $max = $filter->getRange($key)?->getMax(false);
+                                        echo '<tr>';
+                                        echo '<td>' . $value['name'] . '</td>';
+                                        echo '<td><input class="team-range-filter" type="'.($value['type'] ?? 'number').'" name="' . $key . '_min" placeholder="Min" value="' . $min . '"></td>';
+                                        echo '<td><input class="team-range-filter" type="'.($value['type'] ?? 'number').'" name="' . $key . '_max" placeholder="Max" value="' . $max . '"></td>';
+                                        if ($value['can_hide']) {
+                                            echo '<td><input exclude="true" is_column_hider="true" type="checkbox" name="' . $key . '_hide">Hide</td>';
+                                        } else {
+                                            echo '<td></td>';
+                                        }
+                                        echo '</tr>';
                                     }
-                                }
-                                echo '</tr>';
-                                ?>
+                                    ?>
+                                </tbody>
                             </table>
                         </div>
+
                         <div style="margin-top:10px">
                             <input type="submit" value="Filter">
                         </div>
@@ -199,65 +187,64 @@
             //Also show 10 pages before and after the current page (if in bounds)
             getPagination();
             ?>
-            <div>
-                <div>
-                    <table cellpadding="0">
-                        <colgroup>
-                            <col />
-                            <col column-type="id" id="col_id" />
-                            <col />
-                            <col />
-                            <col />
-                            <col column-type="members" id="col_members" />
+            <!-- center the table horizontally -->
+            <div style="overflow-x:auto;max-width:100%;">
+                <table cellpadding="0">
+                    <colgroup>
+                        <col />
+                        <col column-type="id" id="col_id" />
+                        <col />
+                        <col />
+                        <col />
+                        <col column-type="members" id="col_members" />
+                        <?php
+                        foreach ($team_stat_column_data as $key => $value) {
+                            echo '<col class="'.(($filter->getOrder() == $key) ? 'active-sort' : 'mobile-hidden').'" column-type="' . $key . '" id="col_' . $key . '" />';
+                        }
+                        ?>
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th column-type="id">ID</th>
+                            <th></th>
+                            <th>Tag</th>
+                            <th>Team Name</th>
+                            <th column-type="members">Members</th>
                             <?php
                             foreach ($team_stat_column_data as $key => $value) {
-                                echo '<col class="'.(($filter->getOrder() == $key) ? 'active-sort' : 'mobile-hidden').'" column-type="' . $key . '" id="col_' . $key . '" />';
+                                echo '<th class="'.(($filter->getOrder() == $key) ? 'active-sort' : 'mobile-hidden').'" column-type="' . $key . '">' . $value['name'] . '</th>';
                             }
                             ?>
-                        </colgroup>
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th column-type="id">ID</th>
-                                <th></th>
-                                <th>Tag</th>
-                                <th>Team Name</th>
-                                <th column-type="members">Members</th>
-                                <?php
-                                foreach ($team_stat_column_data as $key => $value) {
-                                    echo '<th class="'.(($filter->getOrder() == $key) ? 'active-sort' : 'mobile-hidden').'" column-type="' . $key . '">' . $value['name'] . '</th>';
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php
+                        foreach ($team_collection->getTeams($filter->getPage(), $MAX_TEAMS_PER_PAGE) as $team) {
+                            $exists = !$team->getIsDeleted();
+                            echo '<tr class="' . ($team->getIsTotalTeam() ? "total-team " : " ") . '' . ($exists ? "" : "dead-team ") . '">';
+                            echo '<td>' . $team->getRankStr() . '</td>';
+                            echo '<td column-type="id">' . $team->getId() . '</td>';
+                            echo '<td style="text-align:center;"><img loading="lazy" class="team-flag" src="' . $team->getFlagUrl() . '"></td>';
+                            echo '<td style="' . ($team->getShortName() ? '' : 'font-style:italic;color:grey;') . '">' . ($team->getShortName() ? ('<span class="hint--top hint--no-arrow hint--no-animate" data-hint="Team color: ' . $team->getColor() . '" style="color:' . $team->getColor() . '">⬤</span> [' . $team->getShortName() . ']') : 'N/A') . '</td>';
+                            echo '<td style="max-width:150px;overflow:hidden;"><a href="/teams/id/' . $team->getId() . '" target="_blank">' . $team->getName() . '</a></td>';
+                            echo '<td column-type="members">' . number_format($team->getMembers()) . '</td>';
+                            $data = get_team_row_data($team);
+                            foreach ($data as $key => $value) {
+                                // echo '<td>' . $value['value'] . '</td>';
+                                echo '<td class="'.(($filter->getOrder() == $key) ? 'active-sort' : 'mobile-hidden').'" column-type="' . $key . '">';
+                                if ($value['tooltip']) {
+                                    echo '<span class="hint--top hint--no-arrow hint--no-animate" data-hint="' . $value['tooltip'] . '">' . $value['value'] . '</span>';
+                                } else {
+                                    echo $value['value'];
                                 }
-                                ?>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php
-                            foreach ($team_collection->getTeams($filter->getPage(), $MAX_TEAMS_PER_PAGE) as $team) {
-                                $exists = !$team->getIsDeleted();
-                                echo '<tr class="' . ($team->getIsTotalTeam() ? "total-team " : " ") . '' . ($exists ? "" : "dead-team ") . '">';
-                                echo '<td>' . $team->getRankStr() . '</td>';
-                                echo '<td column-type="id">' . $team->getId() . '</td>';
-                                echo '<td style="text-align:center;"><img loading="lazy" class="team-flag" src="' . $team->getFlagUrl() . '"></td>';
-                                echo '<td style="' . ($team->getShortName() ? '' : 'font-style:italic;color:grey;') . '">' . ($team->getShortName() ? ('<span class="hint--top hint--no-arrow hint--no-animate" data-hint="Team color: ' . $team->getColor() . '" style="color:' . $team->getColor() . '">⬤</span> [' . $team->getShortName() . ']') : 'N/A') . '</td>';
-                                echo '<td style="max-width:150px;overflow:hidden;"><a href="/teams/id/' . $team->getId() . '" target="_blank">' . $team->getName() . '</a></td>';
-                                echo '<td column-type="members">' . number_format($team->getMembers()) . '</td>';
-                                $data = get_team_row_data($team);
-                                foreach ($data as $key => $value) {
-                                    // echo '<td>' . $value['value'] . '</td>';
-                                    echo '<td class="'.(($filter->getOrder() == $key) ? 'active-sort' : 'mobile-hidden').'" column-type="' . $key . '">';
-                                    if ($value['tooltip']) {
-                                        echo '<span class="hint--top hint--no-arrow hint--no-animate" data-hint="' . $value['tooltip'] . '">' . $value['value'] . '</span>';
-                                    } else {
-                                        echo $value['value'];
-                                    }
-                                    echo '</td>';
-                                }
-                                echo '</tr>';
+                                echo '</td>';
                             }
-                            ?>
-                        </tbody>
-                    </table>
-                </div>
+                            echo '</tr>';
+                        }
+                        ?>
+                    </tbody>
+                </table>
             </div>
             <?php
             getPagination();
