@@ -145,7 +145,7 @@ class Team
     public static function getTeams($filter)
     {
         $query_filters = $filter->getSqlQueryFilters();
-        $_order = ' ORDER BY ISNULL('.$filter->getSqlQueryOrder().'), ' . $filter->getSqlQueryOrder() . ' ' . $filter->getOrderDir();
+        $_order = ' ORDER BY ISNULL(' . $filter->getSqlQueryOrder() . '), ' . $filter->getSqlQueryOrder() . ' ' . $filter->getOrderDir();
         // $sql = 'SELECT * FROM osu_teams INNER JOIN osu_teams_ruleset ON osu_teams.id = osu_teams_ruleset.id AND mode = "' . $mode . '" ORDER BY performance DESC LIMIT ' . $limit;
         $sql = 'SELECT osu_teams.*, ';
         $sql .= 'SUM(play_count) as play_count, ';
@@ -161,10 +161,10 @@ class Team
         $sql .= 'SUM(replays_watched) as replays_watched, ';
         $sql .= 'SUM(total_hits) as total_hits, ';
         //insert the mode into the query, makes it easier than adding it to ruleset etc later
-        $sql .= '"'.$filter->getMode(true) .'" as mode';
+        $sql .= '"' . $filter->getMode(true) . '" as mode';
         $sql .= ', rank() over (' . $_order . ') as rank FROM osu_teams';
         $sql .= ' INNER JOIN osu_teams_ruleset ON osu_teams.id = osu_teams_ruleset.id';
-        if($filter->getMode() < 4){
+        if ($filter->getMode() < 4) {
             $sql .= ' AND mode = "' . $filter->getMode() . '"';
         }
         //mode is not necessarily set, if not, we want to get all rulesets join, but with the sum of each stat
@@ -180,11 +180,11 @@ class Team
             $team = new Team($row['rank'], $row['id'], $row['name'], $row['short_name'], $row['flag_url'], $row['members'], $row['created_at'], $row['deleted'], $row['color']);
             $team->addRuleset(
                 new TeamRuleset(
-                    $row['id'], 
-                    $row['mode'], 
-                    $row['play_count'], 
-                    $row['ranked_score'], 
-                    $row['average_score'], 
+                    $row['id'],
+                    $row['mode'],
+                    $row['play_count'],
+                    $row['ranked_score'],
+                    $row['average_score'],
                     $row['performance'],
                     $row['clears'],
                     $row['total_ss'],
@@ -194,7 +194,8 @@ class Team
                     $row['play_time'],
                     $row['replays_watched'],
                     $row['total_hits'],
-                ));
+                )
+            );
             $teams[] = $team;
         }
 
@@ -218,22 +219,27 @@ class Team
      * @param bool $fill Whether to fill the gaps in the data
      * @return array The counts of teams by creation date
      */
-    public static function getCountsByCreationDate($size = 'day', $fill = false){
+    public static function getCountsByCreationDate($size = 'day', $fill = false, $deleted_only = false)
+    {
+        $date_to_filter = 'created_at';
+        if($deleted_only) {
+            $date_to_filter = 'last_updated';
+        }
         $sql = '';
-        switch($size){
+        switch ($size) {
             //excluding team ID 1, its the first team made during development, which splits the data by 2 months. too much empty space
             case 'day':
-                $sql = 'SELECT DATE(created_at) as date, COUNT(*) as count FROM osu_teams WHERE deleted = false AND id != 1 GROUP BY DATE(created_at) ORDER BY DATE(created_at) DESC';
+                $sql = 'SELECT DATE('.$date_to_filter.') as date, COUNT(*) as count FROM osu_teams WHERE deleted = ' . ($deleted_only ? '1' : '0') . ' AND id != 1 GROUP BY DATE('.$date_to_filter.') ORDER BY DATE('.$date_to_filter.') DESC';
                 break;
             case 'month':
-                $sql = 'SELECT DATE_FORMAT(created_at, "%Y-%m") as date, COUNT(*) as count FROM osu_teams WHERE deleted = false AND id != 1 GROUP BY DATE_FORMAT(created_at, "%Y-%m") ORDER BY DATE_FORMAT(created_at, "%Y-%m") DESC';
+                $sql = 'SELECT DATE_FORMAT('.$date_to_filter.', "%Y-%m") as date, COUNT(*) as count FROM osu_teams WHERE deleted = ' . ($deleted_only ? '1' : '0') . ' AND id != 1 GROUP BY DATE_FORMAT('.$date_to_filter.', "%Y-%m") ORDER BY DATE_FORMAT('.$date_to_filter.', "%Y-%m") DESC';
                 break;
         }
         $result = DB::query($sql);
 
         $counts = [];
 
-        while($row = $result->fetch_assoc()){
+        while ($row = $result->fetch_assoc()) {
             $counts[] = [
                 'date' => $row['date'],
                 'count' => $row['count']
@@ -241,13 +247,13 @@ class Team
         }
 
         //if we want to fill the gaps in the data, we need to get the first and last date and fill in the gaps
-        if($fill){
+        if ($fill) {
             $first_date = new DateTime($counts[count($counts) - 1]['date']);
             $last_date = new DateTime($counts[0]['date']);
 
             //create a date interval of 1 day or 1 month depending on the size
             $interval = new DateInterval('P1D');
-            if($size == 'month'){
+            if ($size == 'month') {
                 $interval = new DateInterval('P1M');
             }
 
@@ -255,13 +261,13 @@ class Team
             $period = new DatePeriod($first_date, $interval, $last_date->modify('+1 day'));
 
             //loop through the period and fill in the gaps
-            foreach($period as $date){
+            foreach ($period as $date) {
                 $date_str = $date->format('Y-m-d');
-                if($size == 'month'){
+                if ($size == 'month') {
                     $date_str = $date->format('Y-m');
                 }
                 //check if the date is already in the array
-                if(!in_array($date_str, array_column($counts, 'date'))){
+                if (!in_array($date_str, array_column($counts, 'date'))) {
                     $counts[] = [
                         'date' => $date_str,
                         'count' => 0
@@ -271,15 +277,126 @@ class Team
         }
 
         //sort the array by date
-        usort($counts, function($a, $b) {
+        usort($counts, function ($a, $b) {
             return strtotime($a['date']) - strtotime($b['date']);
         });
 
         return $counts;
     }
 
-    public static function getTeamById($query, $type = 'id'){
-        if($type == 'id' && !is_numeric($query)){
+    public static $max_team_members = 256;
+    public static function getCountsByMemberCount(){
+        //create subsets of equal size between 0 and 256, so we can get the count of teams with that many members
+
+        //get count, member_count for the grouping, and a label (0-15, 16-31, etc)
+        $sql = 'SELECT COUNT(*) as count, members as member_count
+        FROM osu_teams WHERE deleted = 0 GROUP BY member_count ORDER BY member_count ASC';
+        $result = DB::query($sql);
+
+        $counts = [];
+        foreach ($result as $row) {
+            $count = $row['count'];
+            $members = $row['member_count'];
+
+            $counts[$members] = $count;
+        }
+
+        //fill in gaps
+        for ($i = 0; $i <= self::$max_team_members; $i++) {
+            if (!isset($counts[$i])) {
+                $counts[$i] = 0;
+            }
+        }
+        //sort by key asc
+        ksort($counts);
+        //convert to array of objects
+        $counts = array_map(function ($key, $value) {
+            return (object)[
+                'member_count' => $key,
+                'count' => $value
+            ];
+        }, array_keys($counts), $counts);
+
+        return $counts;
+    }
+
+    public static function findMostAppearingTeamNames($limit = 10)
+    {
+        //not exactly names, but words in names
+        //get the most common words in team names, excluding the most common words (the, a, an, etc)
+        $sql = 'SELECT name FROM osu_teams WHERE deleted = false AND id != 1';
+
+        $result = DB::query($sql);
+        $counts = [];
+        foreach ($result as $row) {
+            $name = $row['name'];
+            //split the name into words
+            $words = preg_split('/\s+/', $name);
+            foreach ($words as $word) {
+                //remove special characters and convert to lowercase
+                $word = strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $word));
+                if (strlen($word) < 3 || in_array($word, ['the', 'a', 'an', 'and', 'of', 'in', 'to'])) {
+                    continue;
+                }
+                if (!isset($counts[$word])) {
+                    $counts[$word] = 0;
+                }
+                $counts[$word]++;
+            }
+        }
+
+        //sort the array by count
+        arsort($counts);
+
+        //limit the array to the top 10
+        $counts = array_slice($counts, 0, $limit, true);
+
+        return $counts;
+    }
+
+    public static function findMostAppearingTeamSites($limit = 10)
+    {
+        //not exactly names, but words in names
+        //get the most common websites in team urls
+        //so excludes https:// and www. and .com etc and all directories
+        //do this in the query, not in php, so we can use the database to do the work
+        $sql = 'WITH extracted_domains AS (
+            SELECT 
+                LOWER(
+                    REGEXP_REPLACE(
+                        REGEXP_REPLACE(url, \'^https?://(www\.)?\', \'\'), 
+                        \'/.*$\', \'\'
+                    )
+                    ) AS domain
+                FROM osu_teams
+            WHERE url IS NOT NULL AND url != \'\' AND deleted = false AND id != 1
+        )
+        SELECT 
+            domain,
+            COUNT(*) AS frequency
+        FROM extracted_domains
+        GROUP BY domain
+        ORDER BY frequency DESC
+        LIMIT ' . $limit;
+        $result = DB::query($sql);
+
+        $counts = [];
+        foreach ($result as $row) {
+            $domain = $row['domain'];
+            $frequency = $row['frequency'];
+            if (!isset($counts[$domain])) {
+                $counts[$domain] = $frequency;
+            }
+        }
+
+        arsort($counts);
+
+        return $counts;
+    }
+
+    public static function getTeamById($query, $type = 'id')
+    {
+        if ($type == 'id' && !is_numeric($query)) {
             return null;
         }
         //validate $query for sql injection (we can expect a string)
@@ -288,7 +405,7 @@ class Team
         //we wanna get all modes regardless
         $sql = 'SELECT osu_teams.* FROM osu_teams';
         // $sql .= ' WHERE osu_teams.id = ' . $id;
-        switch($type){
+        switch ($type) {
             case 'id':
                 $sql .= ' WHERE osu_teams.id = ' . $query;
                 break;
@@ -303,21 +420,21 @@ class Team
 
         $team = null;
 
-        if($row = $result->fetch_assoc()){
+        if ($row = $result->fetch_assoc()) {
             $team = new Team($row['rank'] ?? 0, $row['id'], $row['name'], $row['short_name'], $row['flag_url'], $row['members'], $row['created_at'], $row['deleted'], $row['color']);
-            
+
             //get all rulesets
             $sql = 'SELECT * FROM osu_teams_ruleset WHERE id = ' . $row['id'];
             $result = DB::query($sql);
 
-            while($row = $result->fetch_assoc()){
+            while ($row = $result->fetch_assoc()) {
                 $team->addRuleset(
                     new TeamRuleset(
-                        $row['id'], 
-                        $row['mode'], 
-                        $row['play_count'], 
-                        $row['ranked_score'], 
-                        $row['average_score'], 
+                        $row['id'],
+                        $row['mode'],
+                        $row['play_count'],
+                        $row['ranked_score'],
+                        $row['average_score'],
                         $row['performance'],
                         $row['clears'],
                         $row['total_ss'],
@@ -327,7 +444,8 @@ class Team
                         $row['play_time'],
                         $row['replays_watched'],
                         $row['total_hits'],
-                    ));
+                    )
+                );
             }
         }
         return $team;
@@ -338,17 +456,19 @@ class Team
         $this->ruleset = $ruleset;
     }
 
-    public function fetchMembers(){
+    public function fetchMembers()
+    {
         $this->members_list = TeamMember::getMembers($this->id);
     }
 
-    public function getLeader() {
-        if(count($this->members_list) == 0){
+    public function getLeader()
+    {
+        if (count($this->members_list) == 0) {
             return null;
         }
 
-        foreach($this->members_list as $member){
-            if($member->getIsLeader()){
+        foreach ($this->members_list as $member) {
+            if ($member->getIsLeader()) {
                 return $member;
             }
         }

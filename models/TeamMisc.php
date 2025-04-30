@@ -14,53 +14,55 @@ $team_order_options = [
     // 'performance' => 'Performance',
     // 'replays_watched' => 'Replays Watched',
     // 'total_hits' => 'Total Hits',
-    'id' => [ 'name' => 'ID', 'can_hide' => false ],
-    'members' => [ 'name' => 'Members', 'can_hide' => false ],
-    'clears' => [ 'name' => 'Clears', 'can_hide' => true ],
-    'total_ss' => [ 'name' => 'Total SS', 'can_hide' => true ],
-    'total_s' => [ 'name' => 'Total S', 'can_hide' => true ],
-    'total_a' => [ 'name' => 'Total A', 'can_hide' => true ],
-    'play_count' => [ 'name' => 'Play Count', 'can_hide' => true ],
-    'play_time' => [ 'name' => 'Play Time', 'can_hide' => true ],
-    'ranked_score' => [ 'name' => 'Ranked Score', 'can_hide' => true ],
-    'total_score' => [ 'name' => 'Total Score', 'can_hide' => true ],
-    'average_score' => [ 'name' => 'Average Score', 'can_hide' => true ],
-    'performance' => [ 'name' => 'Performance', 'can_hide' => true ],
-    'replays_watched' => [ 'name' => 'Replays Watched', 'can_hide' => true ],
-    'total_hits' => [ 'name' => 'Total Hits', 'can_hide' => true ],
-    'created_at' => [ 'name' => 'Formed', 'can_hide' => true, 'type' => 'date' ],
+    'id' => ['name' => 'ID', 'can_hide' => false],
+    'members' => ['name' => 'Members', 'can_hide' => false],
+    'clears' => ['name' => 'Clears', 'can_hide' => true],
+    'total_ss' => ['name' => 'Total SS', 'can_hide' => true],
+    'total_s' => ['name' => 'Total S', 'can_hide' => true],
+    'total_a' => ['name' => 'Total A', 'can_hide' => true],
+    'play_count' => ['name' => 'Play Count', 'can_hide' => true],
+    'play_time' => ['name' => 'Play Time', 'can_hide' => true],
+    'ranked_score' => ['name' => 'Ranked Score', 'can_hide' => true],
+    'total_score' => ['name' => 'Total Score', 'can_hide' => true],
+    'average_score' => ['name' => 'Average Score', 'can_hide' => true],
+    'performance' => ['name' => 'Performance', 'can_hide' => true],
+    'replays_watched' => ['name' => 'Replays Watched', 'can_hide' => true],
+    'total_hits' => ['name' => 'Total Hits', 'can_hide' => true],
+    'created_at' => ['name' => 'Formed', 'can_hide' => true, 'type' => 'date'],
 ];
 
+// goodness_threshold_count is the amount of teams to use where the average count is a threshold to determine if the team is good or not, bit complex lol
 $team_stat_column_data = [
     'clears' => [
         'name' => 'Clears',
         'formatter' => null,
         'tooltip' => false,
-        'is_ruleset_value' => true
+        'is_ruleset_value' => true,
+        'goodness_threshold_count' => 20,
     ],
     'total_ss' => [
         'name' => 'Total SS',
         'formatter' => null,
         'tooltip' => false,
-        'is_ruleset_value' => true
+        'is_ruleset_value' => true,
     ],
     'total_s' => [
         'name' => 'Total S',
         'formatter' => null,
         'tooltip' => false,
-        'is_ruleset_value' => true
+        'is_ruleset_value' => true,
     ],
     'total_a' => [
         'name' => 'Total A',
         'formatter' => null,
         'tooltip' => false,
-        'is_ruleset_value' => true
+        'is_ruleset_value' => true,
     ],
     'play_count' => [
         'name' => 'Play Count',
         'formatter' => null,
         'tooltip' => false,
-        'is_ruleset_value' => true
+        'is_ruleset_value' => true,
     ],
     'play_time' => [
         'name' => 'Play Time',
@@ -134,7 +136,8 @@ $team_stat_column_data = [
     ],
 ];
 
-function getTeamDateString($str){
+function getTeamDateString($str)
+{
     $format = 'Y-m-d H:i:s';
     $dateTime = DateTime::createFromFormat($format, $str);
     return $dateTime->format('Y-m-d H:i:s');
