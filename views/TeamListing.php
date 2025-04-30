@@ -108,7 +108,7 @@
             </div>
             <span>
                 Found <?php echo number_format($team_collection->getTeamCount()); ?> teams
-                (<?php echo number_format($team_collection->getDeadTeamCount()); ?> deleted) - Execution time:
+                <?php echo ($team_collection->getDeadTeamCount() > 0 ? '('.number_format($team_collection->getDeadTeamCount()).' deleted)' : ''); ?> - Execution time:
                 <?php echo number_format($execution_time, 3); ?>s
             </span>
             <br />
