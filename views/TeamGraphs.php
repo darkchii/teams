@@ -28,16 +28,22 @@
                     </div>
                 </div>
                 <div style="display: flex; flex-direction: row; justify-content: space-between; width: 100%;">
-                    <div style="width:50%">
+                    <div style="width:33%">
                         <h6>Prominent team name words</h6>
-                        <div style="width: 100%; height: 260px;">
+                        <div style="width: 100%;">
                             <?php require_once('views/components/TeamGraphWords.php'); ?>
                         </div>
                     </div>
-                    <div style="width:50%">
+                    <div style="width:33%">
                         <h6>Prominent team domains</h6>
-                        <div style="width: 100%; height: 260px;">
-                            <?php require_once('views/components/TeamGraphsProminentDomains.php'); ?>
+                        <div style="width: 100%;">
+                            <?php require_once('views/components/TeamGraphProminentDomains.php'); ?>
+                        </div>
+                    </div>
+                    <div style="width:33%">
+                        <h6>Prominent team links</h6>
+                        <div style="width: 100%;">
+                            <?php require_once('views/components/TeamGraphProminentSites.php'); ?>
                         </div>
                     </div>
                 </div>

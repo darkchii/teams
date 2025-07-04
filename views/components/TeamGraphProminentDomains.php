@@ -1,16 +1,15 @@
-<?php $data_prominent_names = Team::findMostAppearingTeamNames(limit: 20); ?>
-<!-- <canvas id="team-name-words-graph"></canvas> -->
+<?php $data_prominent_domains = Team::findMostAppearingTeamDomains(limit: 20); ?>
 <table class="table table-striped table-bordered" style="width: 100%;">
     <thead>
         <tr>
-            <th>Word</th>
+            <th>Domain</th>
             <th>Frequency</th>
         </tr>
     </thead>
     <tbody>
-        <?php foreach ($data_prominent_names as $word => $count): ?>
+        <?php foreach ($data_prominent_domains as $domain => $count): ?>
             <tr>
-                <td><?php echo htmlspecialchars($word); ?></td>
+                <td><?php echo htmlspecialchars($domain); ?></td>
                 <td><?php echo htmlspecialchars($count); ?></td>
             </tr>
         <?php endforeach; ?>

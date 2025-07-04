@@ -222,17 +222,17 @@ class Team
     public static function getCountsByCreationDate($size = 'day', $fill = false, $deleted_only = false)
     {
         $date_to_filter = 'created_at';
-        if($deleted_only) {
+        if ($deleted_only) {
             $date_to_filter = 'last_updated';
         }
         $sql = '';
         switch ($size) {
             //excluding team ID 1, its the first team made during development, which splits the data by 2 months. too much empty space
             case 'day':
-                $sql = 'SELECT DATE('.$date_to_filter.') as date, COUNT(*) as count FROM osu_teams WHERE deleted = ' . ($deleted_only ? '1' : '0') . ' AND id != 1 GROUP BY DATE('.$date_to_filter.') ORDER BY DATE('.$date_to_filter.') DESC';
+                $sql = 'SELECT DATE(' . $date_to_filter . ') as date, COUNT(*) as count FROM osu_teams WHERE deleted = ' . ($deleted_only ? '1' : '0') . ' AND id != 1 GROUP BY DATE(' . $date_to_filter . ') ORDER BY DATE(' . $date_to_filter . ') DESC';
                 break;
             case 'month':
-                $sql = 'SELECT DATE_FORMAT('.$date_to_filter.', "%Y-%m") as date, COUNT(*) as count FROM osu_teams WHERE deleted = ' . ($deleted_only ? '1' : '0') . ' AND id != 1 GROUP BY DATE_FORMAT('.$date_to_filter.', "%Y-%m") ORDER BY DATE_FORMAT('.$date_to_filter.', "%Y-%m") DESC';
+                $sql = 'SELECT DATE_FORMAT(' . $date_to_filter . ', "%Y-%m") as date, COUNT(*) as count FROM osu_teams WHERE deleted = ' . ($deleted_only ? '1' : '0') . ' AND id != 1 GROUP BY DATE_FORMAT(' . $date_to_filter . ', "%Y-%m") ORDER BY DATE_FORMAT(' . $date_to_filter . ', "%Y-%m") DESC';
                 break;
         }
         $result = DB::query($sql);
@@ -285,7 +285,8 @@ class Team
     }
 
     public static $max_team_members = 256;
-    public static function getCountsByMemberCount(){
+    public static function getCountsByMemberCount()
+    {
         //create subsets of equal size between 0 and 256, so we can get the count of teams with that many members
 
         //get count, member_count for the grouping, and a label (0-15, 16-31, etc)
@@ -311,7 +312,7 @@ class Team
         ksort($counts);
         //convert to array of objects
         $counts = array_map(function ($key, $value) {
-            return (object)[
+            return (object) [
                 'member_count' => $key,
                 'count' => $value
             ];
@@ -391,6 +392,49 @@ class Team
 
         arsort($counts);
 
+        return $counts;
+    }
+
+    //Same as domains, but full links excluding https:// and www., including subdomains, query parameters, etc.
+    //Allow special characters like russian characters, etc.
+    //Dont lower it either
+    public static function findMostAppearingTeamSites($limit = 10)
+    {
+        $sql = '
+        WITH normalized_urls AS (
+            SELECT 
+                TRIM(
+                    TRAILING \'/\' FROM 
+                    TRIM(
+                        REGEXP_REPLACE(url, \'^https?://(www\\.)?\', \'\')
+                    )
+                ) AS site
+            FROM osu_teams
+            WHERE 
+                url IS NOT NULL 
+                AND url != \'\' 
+                AND deleted = false 
+                AND id != 1
+                -- More precise empty check after all trimming
+                AND TRIM(TRAILING \'/\' FROM TRIM(REGEXP_REPLACE(url, \'^https?://(www\\.)?\', \'\'))) != \'\'
+        )
+        SELECT 
+            site,
+            COUNT(*) AS frequency
+        FROM normalized_urls
+        GROUP BY site
+        ORDER BY frequency DESC
+        LIMIT ' . $limit;
+        $result = DB::query($sql);
+        $counts = [];
+        foreach ($result as $row) {
+            $site = $row['site'];
+            $frequency = $row['frequency'];
+            if (!isset($counts[$site])) {
+                $counts[$site] = $frequency;
+            }
+        }
+        arsort($counts);
         return $counts;
     }
 
