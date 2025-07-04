@@ -354,7 +354,7 @@ class Team
         return $counts;
     }
 
-    public static function findMostAppearingTeamSites($limit = 10)
+    public static function findMostAppearingTeamDomains($limit = 10)
     {
         //not exactly names, but words in names
         //get the most common websites in team urls
