@@ -313,6 +313,7 @@ class TeamFilter
     private function getAllFilters()
     {
         return [
+            'osu_teams.id' => $this->range_id,
             'members' => $this->range_members,
             'play_count' => $this->range_play_count,
             'ranked_score' => $this->range_ranked_score,
