@@ -219,7 +219,7 @@ class Team
      * @param bool $fill Whether to fill the gaps in the data
      * @return array The counts of teams by creation date
      */
-    public static function getCountsByCreationDate($size = 'day', $fill = false, $deleted_only = false)
+    public static function getCountsByCreationDate($size = 'day', $fill = false, $deleted_only = false, $cumulative = false)
     {
         $date_to_filter = 'created_at';
         if ($deleted_only) {
@@ -273,6 +273,20 @@ class Team
                         'count' => 0
                     ];
                 }
+            }
+        }
+
+        //if cumulative, we need to sum the counts
+        if ($cumulative) {
+            //sort the array by date ascending
+            usort($counts, function ($a, $b) {
+                return strtotime($a['date']) - strtotime($b['date']);
+            });
+
+            $cumulative_count = 0;
+            foreach ($counts as &$item) {
+                $cumulative_count += $item['count'];
+                $item['count'] = $cumulative_count;
             }
         }
 

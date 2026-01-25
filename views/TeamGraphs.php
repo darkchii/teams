@@ -14,15 +14,21 @@
             <h1>osu! teams browser</h1>
             <div id="team-graphs-container" class="team-graphs-container" style="width: 100% !important;">
                 <div style="display: flex; flex-direction: row; justify-content: space-between; width: 100%;">
-                    <div style="width:50%">
+                    <div style="width:33%">
                         <h6>Teams formed over time (excluding ID 1, deleted teams)</h6>
-                        <div style="width: 100%; height: 180px;">
+                        <div style="width: 100%; height: 200px;">
+                            <?php require_once('views/components/TeamGraphFormedOverTime.php'); ?>
+                        </div>
+                    </div>
+                    <div style="width:33%">
+                        <h6>Teams formed per day (excluding ID 1, deleted teams)</h6>
+                        <div style="width: 100%; height: 200px;">
                             <?php require_once('views/components/TeamGraphFormed.php'); ?>
                         </div>
                     </div>
-                    <div style="width:50%">
+                    <div style="width:33%">
                         <h6>Teams deleted over time</h6>
-                        <div style="width: 100%; height: 180px;">
+                        <div style="width: 100%; height: 200px;">
                             <?php require_once('views/components/TeamGraphDeleted.php'); ?>
                         </div>
                     </div>
