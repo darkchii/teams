@@ -164,7 +164,7 @@ class Team
         $sql .= '"' . $filter->getMode(true) . '" as mode';
         $sql .= ', rank() over (' . $_order . ') as rank FROM osu_teams';
         $sql .= ' INNER JOIN osu_teams_ruleset ON osu_teams.id = osu_teams_ruleset.id';
-        if ($filter->getMode() < 4) {
+        if ($filter->getMode() < 5) {
             $sql .= ' AND mode = "' . $filter->getMode() . '"';
         }
         //mode is not necessarily set, if not, we want to get all rulesets join, but with the sum of each stat
