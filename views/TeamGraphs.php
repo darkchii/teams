@@ -17,7 +17,7 @@
                     <div style="width:33%">
                         <h6>Teams formed over time (excluding ID 1, deleted teams)</h6>
                         <div style="width: 100%; height: 200px;">
-                            <?php require_once('views/components/TeamGraphFormedOverTime.php'); ?>
+                            <?php require_once('views/components/TeamGraphFormedOvertime.php'); ?>
                         </div>
                     </div>
                     <div style="width:33%">
